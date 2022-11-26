@@ -11,8 +11,8 @@ namespace Sibers.ProjectManagementSystem.Domain.Services
         Task AddEmployeeToProject(int employeeId, int projectId, CancellationToken cancellationToken = default);
         Task RemoveEmployeeFromProject(int employeeId, int projectId, CancellationToken cancellationToken = default);
         Task PromoteEmployeeToManager(int employeeId, int projectId, CancellationToken cancellationToken = default);
-        Task DemoteManagerToEmployee(int projectId, CancellationToken cancellationToken = default);
-        Task FireManager(int projectId, CancellationToken cancellationToken = default);
-        Task TransferEmployeeToAnotherProject(int employeeId, int currentProjectId, int futureProjectId, CancellationToken cancellationToken);
+        Task DemoteManagerToEmployee(int projectId, string reason = "", CancellationToken cancellationToken = default);
+        Task FireManager(int projectId, string reason = "", CancellationToken cancellationToken = default);
+        Task TransferEmployeeToAnotherProject(int employeeId, int currentProjectId, int futureProjectId, CancellationToken cancellationToken = default);
     }
 }

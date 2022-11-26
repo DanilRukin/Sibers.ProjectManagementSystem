@@ -20,10 +20,10 @@ namespace Sibers.ProjectManagementSystem.Domain.ProjectAgregate
         public string NameOfTheCustomerCompany { get; private set; }
         public string NameOfTheContractorCompany { get; private set; }
 
-        private List<Employee> _employees = new List<Employee>();
-        public IReadOnlyCollection<Employee> Employees => _employees.AsReadOnly();
+        private List<int> _employeesIds = new List<int>();
+        public IReadOnlyCollection<int> EmployeesIds => _employeesIds.AsReadOnly();
 
-        public Employee? Manager { get; private set; }
+        public int? ManagerId { get; private set; }
 
         protected Project()
         {
@@ -43,79 +43,71 @@ namespace Sibers.ProjectManagementSystem.Domain.ProjectAgregate
             ChangeContractorCompanyName(nameOfTheContractorComapny);
         }
 
-        public Project(int id, string name, DateTime startDate, DateTime endDate, Priority priority, string nameOfTheCustomerCompany, string nameOfTheContractorCompany, List<Employee> employees, Employee? manager) 
+        public Project(int id, string name, DateTime startDate, DateTime endDate, Priority priority, string nameOfTheCustomerCompany, string nameOfTheContractorCompany, List<int> employeesIds, int? managerId) 
             : this(id, name, startDate, endDate, priority, nameOfTheCustomerCompany, nameOfTheContractorCompany)
         {
-            _employees = employees ?? throw new DomainException("Employees is null");
-            Manager = manager ?? throw new DomainException("Manager is null");
+            _employeesIds = employeesIds ?? throw new DomainException("Employees is null");
+            ManagerId = managerId ?? throw new DomainException("Manager is null");
         }
 
-        public void PromoteEmployeeToManager(Employee emp)
+        internal void PromoteEmployeeToManager(int empId)
         {
-            if (emp == null)
-                throw new DomainException("Employee is null");
-            if (!_employees.Contains(emp))
-                throw new DomainException("Current emplyee is not work on this project. Add him/her to project first");
-            if (emp.Equals(Manager))
+            if (empId == default(int))
+                throw new DomainException("Employee is incorrect");           
+            if (empId.Equals(ManagerId))
                 throw new DomainException("This emplyee is already manager");
-            if (Manager != null)
-                throw new DomainException("You must demote or fire current manager first");           
-            Manager = emp;
-            RemoveEmployee(emp);
-            Manager.AddOnProjectAsManager(Id);
-            AddDomainEvent(new EmployeePromotedToManagerDomainEvent(Manager.Id, Id));
+            if (ManagerId != null)
+                throw new DomainException("You must demote or fire current manager first");
+            if (!_employeesIds.Contains(empId))
+                throw new DomainException("Current emplyee is not work on this project. Add him/her to project first");
+            ManagerId = empId;
+            RemoveEmployee(empId);
+            AddDomainEvent(new EmployeePromotedToManagerDomainEvent((int)ManagerId, Id));
         }
 
-        public void DemoteManagerToEmployee(string reason)
+        internal void DemoteManagerToEmployee(string reason)
         {
-            if (Manager != null)
+            if (ManagerId != null)
             {
-                int managerId = Manager.Id;
-                Manager.RemoveFromProjectAsManager(Id);
-                AddEmployee(Manager);
-                Manager = null;
+                int managerId = (int)ManagerId;
+                ManagerId = null;
+                AddEmployee(managerId);               
                 AddDomainEvent(new ManagerDemotedToEmployeeDomainEvent(managerId, Id, reason));
             }
             else
                 throw new DomainException("Project has no manager. You have to promote one of the employees to manager.");
         }
 
-        public void FireManager(string reason)
+        internal void FireManager(string reason)
         {
-            if (Manager != null)
+            if (ManagerId != null)
             {
-                int managerId = Manager.Id;
-                Manager.RemoveFromProjectAsManager(Id);
-                Manager = null;
+                int managerId = (int)ManagerId;
+                ManagerId = null;
                 AddDomainEvent(new ManagerWasDismissedDomainEvent(managerId, Id, reason));
             }
             else
                 throw new DomainException("Project has no manager. You have to promote one of the employees to manager.");
         }
 
-        public void TransferEmployeeToAnotherProject(Employee emp, int newProjectId)
+        internal void AddEmployee(int empId)
         {
-            // TODO: should I use repository or this method is mistake?
-        }
-
-        public void AddEmployee(Employee emp)
-        {
-            _employees = _employees ?? new List<Employee>();
-            if (emp != null && !_employees.Contains(emp))
+            _employeesIds = _employeesIds ?? new List<int>();
+            if (ManagerId != null && empId == ManagerId)
+                throw new DomainException($"This employee (id: {empId}) is manager. You can not add him to project");
+            if (empId != default(int) && !_employeesIds.Contains(empId))
             {
-                emp.AddOnProjectAsEmployee(Id);
-                _employees.Add(emp);
-                AddDomainEvent(new EmployeeAddedToTheProjectDomainEvent(emp.Id, Id));
+                _employeesIds.Add(empId);
+                AddDomainEvent(new EmployeeAddedToTheProjectDomainEvent(empId, Id));
             }               
         }
 
-        public void RemoveEmployee(Employee emp)
+        internal void RemoveEmployee(int empId)
         {
-            if (emp != null)
+            if (empId != default(int))
             {
-                _employees?.Remove(emp);
-                emp.RemoveFromProjectAsEmployee(Id);
-                AddDomainEvent(new EmployeeRemovedFromTheProjectDomainEvent(emp.Id, Id));
+                _employeesIds?.Remove(empId);
+                AddDomainEvent(new EmployeeRemovedFromTheProjectDomainEvent(empId, Id));
             }          
         }
 

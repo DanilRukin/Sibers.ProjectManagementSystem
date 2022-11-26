@@ -11,4 +11,8 @@
     <ProjectReference Include="..\Sibers.ProjectManagementSystem.SharedKernel\Sibers.ProjectManagementSystem.SharedKernel.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Domain\Services\" />
+  </ItemGroup>
+
 </Project>

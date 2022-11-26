@@ -38,6 +38,9 @@ namespace Sibers.ProjectManagementSystem.Domain.EmployeeAgregate
         internal void AddOnProjectAsEmployee(int projectId)
         {
             _onTheseProjectsIsEmployee = _onTheseProjectsIsEmployee ?? new List<int>();
+            if (_onTheseProjectsIsManager.Contains(projectId))
+                throw new DomainException($"This employee (id: {Id}) is manager on project (id: {projectId}). " +
+                    $"You must to remove him from this project and then add as employee");
             if (!_onTheseProjectsIsEmployee.Contains(projectId))
                 _onTheseProjectsIsEmployee.Add(projectId);
         }
@@ -49,6 +52,9 @@ namespace Sibers.ProjectManagementSystem.Domain.EmployeeAgregate
         internal void AddOnProjectAsManager(int projectId)
         {
             _onTheseProjectsIsManager = _onTheseProjectsIsManager ?? new List<int>();
+            if (_onTheseProjectsIsEmployee.Contains(projectId))
+                throw new DomainException($"This employee (id: {Id}) is employee on project (id: {projectId}). " +
+                    $"You must to remove him from this project and then add as manager");
             if (!_onTheseProjectsIsManager.Contains(projectId))
                 _onTheseProjectsIsManager.Add(projectId);
         }

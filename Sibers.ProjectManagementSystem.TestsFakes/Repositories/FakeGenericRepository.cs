@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Sibers.ProjectManagementSystem.TestsFakes.Repositories
 {
-    internal class FakeGenericRepository<T> : IRepository<T> where T : class, IAgregateRoot
+    public class FakeGenericRepository<T> : IRepository<T> where T : class, IAgregateRoot
     {
         protected List<T> _entities = new List<T>();
         public Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
