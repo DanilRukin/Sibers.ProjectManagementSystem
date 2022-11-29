@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSys
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSystem.UnitTests", "Sibers.ProjectManagementSystem.UnitTests\Sibers.ProjectManagementSystem.UnitTests.csproj", "{1B6D98B3-0145-4312-A9DE-75872A457F0E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sibers.ProjectManagementSystem.TestsFakes", "Sibers.ProjectManagementSystem.TestsFakes\Sibers.ProjectManagementSystem.TestsFakes.csproj", "{A2807528-6F9D-4740-8EFC-DD9FEB79D83A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSystem.TestsFakes", "Sibers.ProjectManagementSystem.TestsFakes\Sibers.ProjectManagementSystem.TestsFakes.csproj", "{A2807528-6F9D-4740-8EFC-DD9FEB79D83A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sibers.ProjectManagementSystem.DataAccess", "Infractructure\Sibers.ProjectManagementSystem.DataAccess\Sibers.ProjectManagementSystem.DataAccess.csproj", "{4D5E1BD5-990B-4AAC-AB92-4502EC5FAE91}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{A2807528-6F9D-4740-8EFC-DD9FEB79D83A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2807528-6F9D-4740-8EFC-DD9FEB79D83A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2807528-6F9D-4740-8EFC-DD9FEB79D83A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D5E1BD5-990B-4AAC-AB92-4502EC5FAE91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D5E1BD5-990B-4AAC-AB92-4502EC5FAE91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D5E1BD5-990B-4AAC-AB92-4502EC5FAE91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D5E1BD5-990B-4AAC-AB92-4502EC5FAE91}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

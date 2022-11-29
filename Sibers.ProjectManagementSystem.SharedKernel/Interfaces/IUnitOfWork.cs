@@ -8,9 +8,9 @@ namespace Sibers.ProjectManagementSystem.SharedKernel.Interfaces
 {
     public interface IUnitOfWork
     {
-        Task SaveChangesAsync(CancellationToken cancellationToken = default);
+        Task SaveEntitiesAsync(CancellationToken cancellationToken = default);
         void BeginTransaction();
-        void EndTransaction();
-        void RollBack();
+        void CommitTransaction();
+        void RollbackTransaction();
     }
 }

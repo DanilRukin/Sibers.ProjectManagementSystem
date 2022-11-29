@@ -8,6 +8,6 @@ namespace Sibers.ProjectManagementSystem.SharedKernel.Interfaces
 {
     public interface IDomainEventDispatcher
     {
-        Task DispatchAndClearEvents<TEntityKey>(IEnumerable<EntityBase<TEntityKey>> entities);
+        Task DispatchAndClearEvents(IEnumerable<IDomainObject> entities);
     }
 }

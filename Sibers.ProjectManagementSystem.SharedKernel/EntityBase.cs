@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Sibers.ProjectManagementSystem.SharedKernel
 {
-    public abstract class EntityBase<TKey> : IEquatable<EntityBase<TKey>>
+    public abstract class EntityBase<TKey> : IDomainObject, IEquatable<EntityBase<TKey>>
     {
         public TKey Id { get; protected set; }
         private List<DomainEvent> _domainEvents = new();
@@ -56,5 +56,16 @@ namespace Sibers.ProjectManagementSystem.SharedKernel
             }
             return false;
         }
+    }
+
+    public interface IDomainObject
+    {
+        IReadOnlyCollection<DomainEvent> DomainEvents { get; }
+
+        void AddDomainEvent(DomainEvent domainEvent);
+
+        void RemoveDomainEvent(DomainEvent domainEvent);
+
+        void ClearDomainEvents();
     }
 }

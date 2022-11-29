@@ -17,7 +17,7 @@ namespace Sibers.ProjectManagementSystem.SharedKernel
             _mediator = mediator;
         }
 
-        public async Task DispatchAndClearEvents<TEntityKey>(IEnumerable<EntityBase<TEntityKey>> entities)
+        public async Task DispatchAndClearEvents(IEnumerable<IDomainObject> entities)
         {
             foreach (var entity in entities)
             {
