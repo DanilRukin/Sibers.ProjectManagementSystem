@@ -1,6 +1,7 @@
 ﻿using Sibers.ProjectManagementSystem.Domain.EmployeeAgregate;
 using Sibers.ProjectManagementSystem.Domain.Exceptions;
 using Sibers.ProjectManagementSystem.Domain.ProjectAgregate.Events;
+using Sibers.ProjectManagementSystem.Domain.TaskAgregate;
 using Sibers.ProjectManagementSystem.SharedKernel;
 using Sibers.ProjectManagementSystem.SharedKernel.Interfaces;
 using System;
@@ -8,22 +9,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Task = Sibers.ProjectManagementSystem.Domain.TaskAgregate.Task;
 
 namespace Sibers.ProjectManagementSystem.Domain.ProjectAgregate
 {
     public class Project : EntityBase<int>, IAgregateRoot
     {
-        public string Name { get; private set; }
-        public DateTime StartDate { get; private set; }
-        public DateTime EndDate { get; private set; }
-        public Priority Priority { get; private set; }
-        public string NameOfTheCustomerCompany { get; private set; }
-        public string NameOfTheContractorCompany { get; private set; }
+        public string Name { get; protected set; }
+        public DateTime StartDate { get; protected set; }
+        public DateTime EndDate { get; protected set; }
+        public Priority Priority { get; protected set; }
+        public string NameOfTheCustomerCompany { get; protected set; }
+        public string NameOfTheContractorCompany { get; protected set; }
 
         private List<int> _employeesIds = new List<int>();
         public IReadOnlyCollection<int> EmployeesIds => _employeesIds.AsReadOnly();
 
         public int? ManagerId { get; private set; }
+
+        private List<Task> _tasks = new List<Task>();
+        public IReadOnlyCollection<Task> Tasks => _tasks.AsReadOnly();
 
         protected Project()
         {
@@ -165,6 +170,81 @@ namespace Sibers.ProjectManagementSystem.Domain.ProjectAgregate
             if (priority == null)
                 throw new DomainException("Priority cannot be null");
             Priority = priority;
+        }
+
+        public Task CreateTask(string name, int authorId, Priority priority = null)
+        {
+            if (priority == null)
+                priority = Priority.Default();
+            Task task = new Task(Guid.NewGuid(), name, Id, authorId, priority);
+            _tasks = _tasks ?? new List<TaskAgregate.Task>();
+            if (!_tasks.Contains(task))
+            {
+                _tasks.Add(task);
+                AddDomainEvent(new TaskCreatedDomainEvent(Id, task, authorId));
+            }
+            return task.Clone();
+        }
+
+        public void RemoveTask(Task? task, int employeeId)
+        {
+            if (task != null)
+            {
+                _tasks?.Remove(task);
+                AddDomainEvent(new TaskRemovedDomainEvent(Id, task, employeeId));
+            }
+        }
+
+        public void ChangeTasksContractor(Task task, int contractorId)
+        {
+            _employeesIds ??= new List<int>();
+            if (!_employeesIds.Contains(contractorId))
+                throw new DomainException($"No such employee (id: {contractorId}) on this project." +
+                    $" Employee must work on project to become a contractor.");
+            if (task != null)
+            {
+                _tasks ??= new List<TaskAgregate.Task>();
+                if (_tasks.Contains(task))
+                {
+                    _tasks.Find(t => t.Id == task.Id)?.ChangeContractor(contractorId);
+                    task.ChangeContractor(contractorId);
+                    AddDomainEvent(new ContractorChangedDomainEvent(Id, task, contractorId));
+                }
+                else
+                    throw new DomainException($"No such task (id: {task.Id}) on a project.");
+            }
+            else
+                throw new DomainException("Task is null.");
+        }
+
+        public void StartTask(Task task)
+        {
+            ThrowIfNotValidTask(task);
+            _tasks.First(t => t.Id == task.Id).Start();
+            task.Start();
+        }
+
+        public void SuspendTask(Task task)
+        {
+            ThrowIfNotValidTask(task);
+            _tasks.First(t => t.Id == task.Id).Suspend();
+            task.Suspend();
+        }
+
+        public void CompleteTask(Task task)
+        {
+            ThrowIfNotValidTask(task);
+            _tasks.First(t => t.Id == task.Id).Complete();
+            task.Complete();
+        }
+
+        private void ThrowIfNotValidTask(Task task)
+        {
+            if (task == null)
+                throw new DomainException("Task is null");
+            _tasks ??= new List<TaskAgregate.Task>();
+            if (!_tasks.Contains(task))
+                throw new DomainException($"No such task (id: {task.Id}) on project (id: {Id}).");
         }
     }
 }

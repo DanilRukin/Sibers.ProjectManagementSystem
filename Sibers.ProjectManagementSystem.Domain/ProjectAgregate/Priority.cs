@@ -19,6 +19,8 @@ namespace Sibers.ProjectManagementSystem.Domain.ProjectAgregate
             Value = value;
         }
 
+        public static Priority Default() => new Priority(0);
+
         protected Priority() { }
 
         protected override IEnumerable<object> GetEqualityComponents()

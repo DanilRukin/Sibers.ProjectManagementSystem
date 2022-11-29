@@ -16,7 +16,7 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain.Specifications
         public SpecificationTests()
         {
             _startDate = DateTime.Today;
-            _endDate = _startDate.AddDays(1);
+            _endDate = _startDate.AddDays(1); 
         }
 
         [Fact]
