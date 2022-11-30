@@ -14,7 +14,7 @@ namespace Sibers.ProjectManagementSystem.Domain.TaskAgregate
     public class Task : EntityBase<Guid>
     {
         public string Name { get; protected set; }
-        public string Description { get; protected set; }
+        public string? Description { get; protected set; }
         public Priority Priority { get; protected set; }
         public TaskStatus TaskStatus { get; protected set; }
         public int ProjectId { get; protected set; }
