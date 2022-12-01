@@ -13,7 +13,24 @@ namespace Sibers.ProjectManagementSystem.DataAccess.Configurations
     {
         public void Configure(EntityTypeBuilder<Project> builder)
         {
-            throw new NotImplementedException();
+            builder.ToTable(nameof(Project));
+
+            builder.HasKey(p => p.Id);
+            builder.Property(p => p.Id).ValueGeneratedOnAdd();
+
+            builder.Ignore(p => p.DomainEvents);
+
+            builder.Property(p => p.Name).IsRequired();
+
+            builder.OwnsOne(p => p.Priority);
+
+            builder.Property(p => p.NameOfTheCustomerCompany).IsRequired();
+
+            builder.Property(p => p.NameOfTheContractorCompany).IsRequired();
+
+            builder.Property(p => p.StartDate).IsRequired();
+
+            builder.Property(p => p.EndDate).IsRequired();
         }
     }
 }

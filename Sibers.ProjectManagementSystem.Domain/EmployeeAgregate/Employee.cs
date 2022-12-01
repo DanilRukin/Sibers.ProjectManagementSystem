@@ -1,8 +1,10 @@
 ﻿using Sibers.ProjectManagementSystem.Domain.Exceptions;
+using Sibers.ProjectManagementSystem.Domain.ProjectAgregate;
 using Sibers.ProjectManagementSystem.SharedKernel;
 using Sibers.ProjectManagementSystem.SharedKernel.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,8 +16,58 @@ namespace Sibers.ProjectManagementSystem.Domain.EmployeeAgregate
         public PersonalData PersonalData { get; set; }
         public Email Email { get; set; }
 
-        protected List<int> _onTheseProjectsIsEmployee = new List<int>();
-        public IReadOnlyCollection<int> OnTheseProjectsIsEmployee => _onTheseProjectsIsEmployee.AsReadOnly();
+        public IReadOnlyCollection<Project> OnTheseProjectsIsEmployee => _employeeOnProjects
+            .Where(ep => ep.Role == EmployeeRoleOnProject.Employee)
+            .Select(ep => ep.Project)
+            .ToList()
+            .AsReadOnly();
+
+        public IReadOnlyCollection<Project> OnTheseProjectsIsManager => _employeeOnProjects
+            .Where(ep => ep.Role == EmployeeRoleOnProject.Manager)
+            .Select(ep => ep.Project)
+            .ToList()
+            .AsReadOnly();
+
+        private List<EmployeeOnProject> _employeeOnProjects = new List<EmployeeOnProject>();
+        public IReadOnlyCollection<Project> Projects => _employeeOnProjects
+            .Select(ep => ep.Project)
+            .ToList()
+            .AsReadOnly();
+
+        internal void AddProject(EmployeeOnProject employeeOnProject)
+        {
+            if (employeeOnProject == null)
+                throw new ArgumentNullException(nameof(employeeOnProject));
+            _employeeOnProjects ??= new List<EmployeeOnProject>();
+
+            if (!_employeeOnProjects.Contains(employeeOnProject))
+            {
+                _employeeOnProjects.Add(employeeOnProject);
+            }
+        }
+
+        internal void RemoveProject(EmployeeOnProject employeeOnProject)
+        {
+            if (employeeOnProject == null)
+                throw new ArgumentNullException(nameof(employeeOnProject));
+            _employeeOnProjects?.Remove(employeeOnProject);
+        }
+
+        internal void PromoteToManagerOnProject(EmployeeOnProject employeeOnProject)
+        {
+            if (employeeOnProject == null)
+                throw new ArgumentNullException(nameof(employeeOnProject));
+            _employeeOnProjects ??= new List<EmployeeOnProject>();
+            _employeeOnProjects.First(ep => ep.Equals(employeeOnProject)).ChangeRole(EmployeeRoleOnProject.Manager);
+        }
+
+        internal void DemoteToManagerOnProject(EmployeeOnProject employeeOnProject)
+        {
+            if (employeeOnProject == null)
+                throw new ArgumentNullException(nameof(employeeOnProject));
+            _employeeOnProjects ??= new List<EmployeeOnProject>();
+            _employeeOnProjects.First(ep => ep.Equals(employeeOnProject)).ChangeRole(EmployeeRoleOnProject.Employee);
+        }
 
         protected Employee() { }
 
@@ -25,41 +77,6 @@ namespace Sibers.ProjectManagementSystem.Domain.EmployeeAgregate
             PersonalData = personalData ?? throw new DomainException("Personal data is null");
             Email = email ?? throw new DomainException("Email is null");
         }
-
-        public Employee(int id, PersonalData personalData, Email email, List<int> onTheseProjectsIsEmployee, List<int> onTheseProjectsIsManager)
-            : this(id, personalData, email)
-        {
-            _onTheseProjectsIsEmployee = onTheseProjectsIsEmployee 
-                ?? throw new DomainException(nameof(onTheseProjectsIsEmployee) + " is null");
-            _onTheseProjectsIsManager = onTheseProjectsIsManager 
-                ?? throw new DomainException(nameof(onTheseProjectsIsManager) + " is null");
-        }
-
-        internal void AddOnProjectAsEmployee(int projectId)
-        {
-            _onTheseProjectsIsEmployee = _onTheseProjectsIsEmployee ?? new List<int>();
-            if (_onTheseProjectsIsManager.Contains(projectId))
-                throw new DomainException($"This employee (id: {Id}) is manager on project (id: {projectId}). " +
-                    $"You must to remove him from this project and then add as employee");
-            if (!_onTheseProjectsIsEmployee.Contains(projectId))
-                _onTheseProjectsIsEmployee.Add(projectId);
-        }
-        internal void RemoveFromProjectAsEmployee(int projectId) => _onTheseProjectsIsEmployee?.Remove(projectId);
-
-        protected List<int> _onTheseProjectsIsManager = new List<int>();
-        public IReadOnlyCollection<int> OnTheseProjectsIsManager => _onTheseProjectsIsManager.AsReadOnly();
-
-        internal void AddOnProjectAsManager(int projectId)
-        {
-            _onTheseProjectsIsManager = _onTheseProjectsIsManager ?? new List<int>();
-            if (_onTheseProjectsIsEmployee.Contains(projectId))
-                throw new DomainException($"This employee (id: {Id}) is employee on project (id: {projectId}). " +
-                    $"You must to remove him from this project and then add as manager");
-            if (!_onTheseProjectsIsManager.Contains(projectId))
-                _onTheseProjectsIsManager.Add(projectId);
-        }
-
-        internal void RemoveFromProjectAsManager(int projectId) => _onTheseProjectsIsManager?.Remove(projectId);
 
         public void ChangeFirstName(string firstName)
         {

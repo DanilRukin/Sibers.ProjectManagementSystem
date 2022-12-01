@@ -22,10 +22,16 @@ namespace Sibers.ProjectManagementSystem.Domain.ProjectAgregate
         public string NameOfTheCustomerCompany { get; protected set; }
         public string NameOfTheContractorCompany { get; protected set; }
 
-        private List<int> _employeesIds = new List<int>();
-        public IReadOnlyCollection<int> EmployeesIds => _employeesIds.AsReadOnly();
+        private List<EmployeeOnProject> _employeesOnProject = new List<EmployeeOnProject>();
+        public IReadOnlyCollection<Employee> Employees => _employeesOnProject
+            .Select(ep => ep.Employee)
+            .ToList()
+            .AsReadOnly();
 
-        public int? ManagerId { get; private set; }
+        public Employee? Manager => _employeesOnProject
+            ?.Where(ep => ep.Role == EmployeeRoleOnProject.Manager)
+            ?.Select(ep => ep.Employee)
+            ?.FirstOrDefault();
 
         private List<Task> _tasks = new List<Task>();
         public IReadOnlyCollection<Task> Tasks => _tasks.AsReadOnly();
@@ -48,72 +54,87 @@ namespace Sibers.ProjectManagementSystem.Domain.ProjectAgregate
             ChangeContractorCompanyName(nameOfTheContractorComapny);
         }
 
-        public Project(int id, string name, DateTime startDate, DateTime endDate, Priority priority, string nameOfTheCustomerCompany, string nameOfTheContractorCompany, List<int> employeesIds, int? managerId) 
-            : this(id, name, startDate, endDate, priority, nameOfTheCustomerCompany, nameOfTheContractorCompany)
+        public void AddEmployee(Employee employee)
         {
-            _employeesIds = employeesIds ?? throw new DomainException("Employees is null");
-            ManagerId = managerId ?? throw new DomainException("Manager is null");
+            if (employee != null)
+            {
+                _employeesOnProject ??= new List<EmployeeOnProject>();
+
+                EmployeeOnProject employeeOnProject = new EmployeeOnProject(employee, this, EmployeeRoleOnProject.Employee);
+                if (!_employeesOnProject.Contains(employeeOnProject))
+                {
+                    _employeesOnProject.Add(employeeOnProject);
+                    employee.AddProject(employeeOnProject);
+                    AddDomainEvent(new EmployeeAddedToTheProjectDomainEvent(employee.Id, Id));
+                }
+                else
+                    throw new DomainException($"Such employee (id: {employee.Id}) is already works on this project");
+            }
+            else
+                throw new ArgumentNullException(nameof(employee));
         }
 
-        internal void PromoteEmployeeToManager(int empId)
+        public void RemoveEmployee(Employee employee)
         {
-            if (empId == default(int))
-                throw new DomainException("Employee is incorrect");           
-            if (empId.Equals(ManagerId))
+            if (employee == null)
+                throw new ArgumentNullException(nameof(Employee));
+            EmployeeOnProject employeeOnProject = _employeesOnProject?
+                .FirstOrDefault(ep => ep.Employee.Id == employee.Id
+                && ep.Project.Id == this.Id);
+            if (employeeOnProject != null)
+            {
+                _employeesOnProject?.Remove(employeeOnProject);
+                employee.RemoveProject(employeeOnProject);
+                AddDomainEvent(new EmployeeRemovedFromTheProjectDomainEvent(employee.Id, Id));
+            }
+            else
+                throw new DomainException($"No such employee (id: {employee.Id}) on project");
+        }
+
+        public void PromoteEmployeeToManager(Employee employee)
+        {
+            if (employee == null)
+                throw new ArgumentNullException(nameof(employee));
+            Employee manager = Manager;
+            if (employee.Equals(manager))
                 throw new DomainException("This emplyee is already manager");
-            if (ManagerId != null)
+            if (manager != null)
                 throw new DomainException("You must demote or fire current manager first");
-            if (!_employeesIds.Contains(empId))
+            _employeesOnProject ??= new List<EmployeeOnProject>();
+            EmployeeOnProject employeeOnProject = new EmployeeOnProject(employee, this, EmployeeRoleOnProject.Employee);
+            if (!_employeesOnProject.Contains(employeeOnProject))
                 throw new DomainException("Current emplyee is not work on this project. Add him/her to project first");
-            ManagerId = empId;
-            RemoveEmployee(empId);
-            AddDomainEvent(new EmployeePromotedToManagerDomainEvent((int)ManagerId, Id));
+            _employeesOnProject.First(ep => ep.Equals(employeeOnProject)).ChangeRole(EmployeeRoleOnProject.Manager);
+            employee.PromoteToManagerOnProject(employeeOnProject);
+            AddDomainEvent(new EmployeePromotedToManagerDomainEvent(employee.Id, Id));
         }
 
-        internal void DemoteManagerToEmployee(string reason)
+        public void DemoteManagerToEmployee(string reason)
         {
-            if (ManagerId != null)
+            var manager = Manager;
+            if (manager != null)
             {
-                int managerId = (int)ManagerId;
-                ManagerId = null;
-                AddEmployee(managerId);               
-                AddDomainEvent(new ManagerDemotedToEmployeeDomainEvent(managerId, Id, reason));
+                EmployeeOnProject managerOnProject = new EmployeeOnProject(manager, this, EmployeeRoleOnProject.Manager);
+                _employeesOnProject.First(ep => ep.Equals(managerOnProject)).ChangeRole(EmployeeRoleOnProject.Employee);
+                manager.DemoteToManagerOnProject(managerOnProject);
+                AddDomainEvent(new ManagerDemotedToEmployeeDomainEvent(manager.Id, Id, reason));
             }
             else
                 throw new DomainException("Project has no manager. You have to promote one of the employees to manager.");
         }
 
-        internal void FireManager(string reason)
+        public void FireManager(string reason)
         {
-            if (ManagerId != null)
+            var manager = Manager;
+            if (manager != null)
             {
-                int managerId = (int)ManagerId;
-                ManagerId = null;
-                AddDomainEvent(new ManagerWasDismissedDomainEvent(managerId, Id, reason));
+                EmployeeOnProject managerOnProject = new EmployeeOnProject(manager, this, EmployeeRoleOnProject.Manager);
+                manager.RemoveProject(managerOnProject);
+                _employeesOnProject?.Remove(managerOnProject);
+                AddDomainEvent(new ManagerDemotedToEmployeeDomainEvent(manager.Id, Id, reason));
             }
             else
                 throw new DomainException("Project has no manager. You have to promote one of the employees to manager.");
-        }
-
-        internal void AddEmployee(int empId)
-        {
-            _employeesIds = _employeesIds ?? new List<int>();
-            if (ManagerId != null && empId == ManagerId)
-                throw new DomainException($"This employee (id: {empId}) is manager. You can not add him to project");
-            if (empId != default(int) && !_employeesIds.Contains(empId))
-            {
-                _employeesIds.Add(empId);
-                AddDomainEvent(new EmployeeAddedToTheProjectDomainEvent(empId, Id));
-            }               
-        }
-
-        internal void RemoveEmployee(int empId)
-        {
-            if (empId != default(int))
-            {
-                _employeesIds?.Remove(empId);
-                AddDomainEvent(new EmployeeRemovedFromTheProjectDomainEvent(empId, Id));
-            }          
         }
 
         public void ChangeCustomerCompanyName(string name)
@@ -172,16 +193,16 @@ namespace Sibers.ProjectManagementSystem.Domain.ProjectAgregate
             Priority = priority;
         }
 
-        public Task CreateTask(string name, int authorId, Priority priority = null)
+        public Task CreateTask(string name, Employee author, Priority priority = null)
         {
             if (priority == null)
                 priority = Priority.Default();
-            Task task = new Task(Guid.NewGuid(), name, Id, authorId, priority);
+            Task task = new Task(Guid.NewGuid(), name, Id, author.Id, priority);
             _tasks = _tasks ?? new List<TaskAgregate.Task>();
             if (!_tasks.Contains(task))
             {
                 _tasks.Add(task);
-                AddDomainEvent(new TaskCreatedDomainEvent(Id, task, authorId));
+                AddDomainEvent(new TaskCreatedDomainEvent(Id, task, author.Id));
             }
             return task.Clone();
         }
@@ -195,20 +216,19 @@ namespace Sibers.ProjectManagementSystem.Domain.ProjectAgregate
             }
         }
 
-        public void ChangeTasksContractor(Task task, int contractorId)
+        public void ChangeTasksContractor(Task task, Employee employee)
         {
-            _employeesIds ??= new List<int>();
-            if (!_employeesIds.Contains(contractorId))
-                throw new DomainException($"No such employee (id: {contractorId}) on this project." +
+            if (!Employees.Contains(employee))
+                throw new DomainException($"No such employee (id: {employee.Id}) on this project." +
                     $" Employee must work on project to become a contractor.");
             if (task != null)
             {
                 _tasks ??= new List<TaskAgregate.Task>();
                 if (_tasks.Contains(task))
                 {
-                    _tasks.Find(t => t.Id == task.Id)?.ChangeContractor(contractorId);
-                    task.ChangeContractor(contractorId);
-                    AddDomainEvent(new ContractorChangedDomainEvent(Id, task, contractorId));
+                    _tasks.Find(t => t.Id == task.Id)?.ChangeContractor(employee.Id);
+                    task.ChangeContractor(employee.Id);
+                    AddDomainEvent(new ContractorChangedDomainEvent(Id, task, employee.Id));
                 }
                 else
                     throw new DomainException($"No such task (id: {task.Id}) on a project.");

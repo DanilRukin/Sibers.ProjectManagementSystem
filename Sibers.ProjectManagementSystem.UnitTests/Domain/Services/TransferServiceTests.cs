@@ -42,31 +42,11 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain.Services
             Project project = _fakeProjectRepository.Find(new ProjectByIdSpecification(_testProjectId)).Result;
             Employee employee = _fakeEmployeeRepository.Find(new EmployeeByIdSpecification(_testEmployeeId)).Result;
 
-            Assert.NotEmpty(project.EmployeesIds);
-            Assert.Contains(employee.Id, project.EmployeesIds);
+            Assert.NotEmpty(project.Employees);
+            Assert.Contains(employee, project.Employees);
 
             Assert.NotEmpty(employee.OnTheseProjectsIsEmployee);
-            Assert.Contains(project.Id, employee.OnTheseProjectsIsEmployee);
-        }
-
-        [Fact]
-        public void AddEmployeeToProject_AddEmployeeTwice_EmployeeShouldKnowAboutTheProjectHeWasAddedAndCollectionMustContainOneElement()
-        {
-            ResetServiceAndRepositories();
-
-            _transferService.AddEmployeeToProject(_testEmployeeId, _testProjectId).Wait();
-            _transferService.AddEmployeeToProject(_testEmployeeId, _testProjectId).Wait();
-            Project project = _fakeProjectRepository.Find(new ProjectByIdSpecification(_testProjectId)).Result;
-            Employee employee = _fakeEmployeeRepository.Find(new EmployeeByIdSpecification(_testEmployeeId)).Result;
-
-            Assert.NotEmpty(project.EmployeesIds);
-            Assert.Contains(employee.Id, project.EmployeesIds);
-
-            Assert.NotEmpty(employee.OnTheseProjectsIsEmployee);
-            Assert.Contains(project.Id, employee.OnTheseProjectsIsEmployee);
-
-            Assert.Single(employee.OnTheseProjectsIsEmployee);
-            Assert.Single(project.EmployeesIds);
+            Assert.Contains(project, employee.OnTheseProjectsIsEmployee);
         }
 
         [Fact]
@@ -80,7 +60,7 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain.Services
             Project project = _fakeProjectRepository.Find(new ProjectByIdSpecification(_testProjectId)).Result;
             Employee employee = _fakeEmployeeRepository.Find(new EmployeeByIdSpecification(_testEmployeeId)).Result;
 
-            Assert.Empty(project.EmployeesIds);
+            Assert.Empty(project.Employees);
             Assert.Empty(employee.OnTheseProjectsIsEmployee);
         }
 
@@ -107,12 +87,11 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain.Services
             Project project = _fakeProjectRepository.Find(new ProjectByIdSpecification(_testProjectId)).Result;
             Employee employee = _fakeEmployeeRepository.Find(new EmployeeByIdSpecification(_testEmployeeId)).Result;
 
-            Assert.Empty(project.EmployeesIds);
-            Assert.NotNull(project.ManagerId);
-            Assert.Equal(employee.Id, project.ManagerId);
+            Assert.NotNull(project.Manager);
+            Assert.Equal(employee, project.Manager);
 
             Assert.Empty(employee.OnTheseProjectsIsEmployee);
-            Assert.Contains(project.Id, employee.OnTheseProjectsIsManager);
+            Assert.Contains(project, employee.OnTheseProjectsIsManager);
             Assert.Single(employee.OnTheseProjectsIsManager);
         }
 
@@ -177,11 +156,11 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain.Services
 
             Project project = _fakeProjectRepository.Find(new ProjectByIdSpecification(_testProjectId)).Result;
             Employee employee = _fakeEmployeeRepository.Find(new EmployeeByIdSpecification(_testProjectId)).Result;
-            Assert.Null(project.ManagerId);
-            Assert.Contains(employee.Id, project.EmployeesIds);
+            Assert.Null(project.Manager);
+            Assert.Contains(employee, project.Employees);
 
             Assert.Empty(employee.OnTheseProjectsIsManager);
-            Assert.Contains(project.Id, employee.OnTheseProjectsIsEmployee);
+            Assert.Contains(project, employee.OnTheseProjectsIsEmployee);
         }
 
         [Fact]
@@ -210,8 +189,8 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain.Services
 
             Project project = _fakeProjectRepository.Find(new ProjectByIdSpecification(_testProjectId)).Result;
             Employee employee = _fakeEmployeeRepository.Find(new EmployeeByIdSpecification(_testProjectId)).Result;
-            Assert.Null(project.ManagerId);
-            Assert.Empty(project.EmployeesIds);
+            Assert.Null(project.Manager);
+            Assert.Empty(project.Employees);
 
             Assert.Empty(employee.OnTheseProjectsIsEmployee);
             Assert.Empty(employee.OnTheseProjectsIsManager);
@@ -305,10 +284,10 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain.Services
             Project firstProject = _fakeProjectRepository.Find(new ProjectByIdSpecification(_testProjectId)).Result;
             Project secondProject = _fakeProjectRepository.Find(new ProjectByIdSpecification(projectId)).Result;
             Employee employee = _fakeEmployeeRepository.Find(new EmployeeByIdSpecification(_testProjectId)).Result;
-            Assert.Empty(firstProject.EmployeesIds);
-            Assert.Contains(employee.Id, secondProject.EmployeesIds);
-            Assert.Contains(secondProject.Id, employee.OnTheseProjectsIsEmployee);
-            Assert.DoesNotContain(firstProject.Id, employee.OnTheseProjectsIsEmployee);
+            Assert.Empty(firstProject.Employees);
+            Assert.Contains(employee, secondProject.Employees);
+            Assert.Contains(secondProject, employee.OnTheseProjectsIsEmployee);
+            Assert.DoesNotContain(firstProject, employee.OnTheseProjectsIsEmployee);
         }
 
         private void ResetServiceAndRepositories()

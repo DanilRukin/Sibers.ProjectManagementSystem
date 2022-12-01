@@ -31,8 +31,7 @@ namespace Sibers.ProjectManagementSystem.Domain.Services
             Employee employee = await _employeeRepository.Find(new EmployeeByIdSpecification(employeeId));
             if (employee == null)
                 throw new DomainException($"No such employee with id: {employeeId}");
-            project.AddEmployee(employeeId);
-            employee.AddOnProjectAsEmployee(projectId);
+            project.AddEmployee(employee);
 
             await _projectRepository.UpdateAsync(project);
             await _employeeRepository.UpdateAsync(employee);
@@ -43,15 +42,13 @@ namespace Sibers.ProjectManagementSystem.Domain.Services
             Project project = await _projectRepository.Find(new ProjectByIdSpecification(projectId));
             if (project == null)
                 throw new DomainException($"No such project with id: {projectId}");
-            if (project.ManagerId != null)
+            if (project.Manager != null)
             {
-                int managerId = (int)project.ManagerId;
+                int managerId = project.Manager.Id;
                 Employee employee = await _employeeRepository.Find(new EmployeeByIdSpecification(managerId));
                 if (employee == null)
                     throw new DomainException($"No such employee with id: {managerId}");
                 project.DemoteManagerToEmployee(reason);
-                employee.RemoveFromProjectAsManager(projectId);
-                employee.AddOnProjectAsEmployee(projectId);
                 await _projectRepository.UpdateAsync(project);
                 await _employeeRepository.UpdateAsync(employee);
             }
@@ -64,14 +61,13 @@ namespace Sibers.ProjectManagementSystem.Domain.Services
             Project project = await _projectRepository.Find(new ProjectByIdSpecification(projectId));
             if (project == null)
                 throw new DomainException($"No such project with id: {projectId}");
-            if (project.ManagerId != null)
+            if (project.Manager != null)
             {
-                int managerId = (int)project.ManagerId;
+                int managerId = project.Manager.Id;
                 Employee employee = await _employeeRepository.Find(new EmployeeByIdSpecification(managerId));
                 if (employee == null)
                     throw new DomainException($"No such employee with id: {managerId}");
                 project.FireManager(reason);
-                employee.RemoveFromProjectAsManager(projectId);
                 await _projectRepository.UpdateAsync(project);
                 await _employeeRepository.UpdateAsync(employee);
             }
@@ -87,9 +83,7 @@ namespace Sibers.ProjectManagementSystem.Domain.Services
             Employee employee = await _employeeRepository.Find(new EmployeeByIdSpecification(employeeId));
             if (employee == null)
                 throw new DomainException($"No such employee with id: {employeeId}");
-            project.PromoteEmployeeToManager(employeeId);
-            employee.RemoveFromProjectAsEmployee(projectId);
-            employee.AddOnProjectAsManager(projectId);
+            project.PromoteEmployeeToManager(employee);
             await _projectRepository.UpdateAsync(project);
             await _employeeRepository.UpdateAsync(employee);
         }
@@ -102,8 +96,7 @@ namespace Sibers.ProjectManagementSystem.Domain.Services
             Employee employee = await _employeeRepository.Find(new EmployeeByIdSpecification(employeeId));
             if (employee == null)
                 throw new DomainException($"No such employee with id: {employeeId}");
-            project.RemoveEmployee(employeeId);
-            employee.RemoveFromProjectAsEmployee(projectId);
+            project.RemoveEmployee(employee);
 
             await _projectRepository.UpdateAsync(project);
             await _employeeRepository.UpdateAsync(employee);
@@ -121,23 +114,21 @@ namespace Sibers.ProjectManagementSystem.Domain.Services
             if (employee == null)
                 throw new DomainException($"No such employee with id: {employeeId}");
 
-            if (employee.Id.Equals(currentProject.ManagerId))
+            if (employee.Equals(currentProject.Manager))
                 throw new DomainException($"You can not transfer this employee (id: {employee.Id}) from current project" +
                 $" (id: {currentProject.Id}) because he is manager of this project");
 
-            if (!currentProject.EmployeesIds.Contains(employeeId))
+            if (!currentProject.Employees.Contains(employee))
                 throw new DomainException($"You can not transfer this employee (id: {employeeId}) from current project" +
                 $" (id: {currentProjectId}) because he is not working on it");
 
-            if (futureProject.EmployeesIds.Contains(employeeId) || employeeId.Equals(futureProject.ManagerId))
+            if (futureProject.Employees.Contains(employee) || employee.Equals(futureProject.Manager))
                 throw new DomainException($"You can not transfer this employee (id: {employeeId}) from current project" +
                 $" (id: {currentProjectId}) because he is already works on project you want to transfer (id: {futureProjectId})");
 
-            currentProject.RemoveEmployee(employeeId);
-            employee.RemoveFromProjectAsEmployee(currentProjectId);
+            currentProject.RemoveEmployee(employee);
 
-            futureProject.AddEmployee(employeeId);
-            employee.AddOnProjectAsEmployee(futureProjectId);
+            futureProject.AddEmployee(employee);
 
             await _projectRepository.UpdateAsync(currentProject);
             await _projectRepository.UpdateAsync(futureProject);
