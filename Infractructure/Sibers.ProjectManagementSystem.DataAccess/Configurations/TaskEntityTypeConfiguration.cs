@@ -17,7 +17,7 @@ namespace Sibers.ProjectManagementSystem.DataAccess.Configurations
             builder.ToTable(nameof(Task));
 
             builder.HasKey(t => t.Id);
-            builder.Property(t => t.Id).ValueGeneratedOnAdd();
+            builder.Property(t => t.Id).ValueGeneratedNever();
 
             builder.Ignore(t => t.DomainEvents);
 

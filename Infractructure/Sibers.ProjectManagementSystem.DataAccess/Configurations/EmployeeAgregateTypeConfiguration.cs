@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Sibers.ProjectManagementSystem.Domain;
 using Sibers.ProjectManagementSystem.Domain.EmployeeAgregate;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,23 @@ namespace Sibers.ProjectManagementSystem.DataAccess.Configurations
     {
         public void Configure(EntityTypeBuilder<Employee> builder)
         {
-            throw new NotImplementedException();
+            builder.ToTable("Employees");
+
+            builder.HasKey(e => e.Id);
+            builder.Property(e => e.Id).ValueGeneratedOnAdd();
+
+            builder.OwnsOne(e => e.Email);
+            builder.OwnsOne(e => e.PersonalData);
+
+            builder.Ignore(e => e.DomainEvents);
+            builder.Ignore(e => e.OnTheseProjectsIsManager);
+            builder.Ignore(e => e.OnTheseProjectsIsEmployee);
+            builder.Ignore(e => e.Projects);
+
+            builder.HasMany<EmployeeOnProject>("_employeeOnProjects") // nameof(Employee._employeeOnProjects) is not working
+                .WithOne(ep => ep.Employee)
+                .HasForeignKey(ep => ep.EmployeeId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

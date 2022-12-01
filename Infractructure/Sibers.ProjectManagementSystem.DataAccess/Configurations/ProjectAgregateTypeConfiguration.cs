@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Sibers.ProjectManagementSystem.Domain;
 using Sibers.ProjectManagementSystem.Domain.ProjectAgregate;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,9 @@ namespace Sibers.ProjectManagementSystem.DataAccess.Configurations
             builder.Property(p => p.Id).ValueGeneratedOnAdd();
 
             builder.Ignore(p => p.DomainEvents);
+            builder.Ignore(p => p.Employees);
+            builder.Ignore(p => p.Manager);
+            builder.Ignore(p => p.Tasks);
 
             builder.Property(p => p.Name).IsRequired();
 
@@ -31,6 +35,11 @@ namespace Sibers.ProjectManagementSystem.DataAccess.Configurations
             builder.Property(p => p.StartDate).IsRequired();
 
             builder.Property(p => p.EndDate).IsRequired();
+
+            builder.HasMany<EmployeeOnProject>("_employeesOnProject")  // nameof(Project._employeesOnProject) is not working
+                .WithOne(ep => ep.Project)
+                .HasForeignKey(ep => ep.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

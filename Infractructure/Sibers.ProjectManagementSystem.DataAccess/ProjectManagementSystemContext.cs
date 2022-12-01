@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Sibers.ProjectManagementSystem.Domain;
 using Sibers.ProjectManagementSystem.Domain.EmployeeAgregate;
 using Sibers.ProjectManagementSystem.Domain.ProjectAgregate;
 using Sibers.ProjectManagementSystem.Domain.TaskAgregate;
@@ -23,9 +24,23 @@ namespace Sibers.ProjectManagementSystem.DataAccess
         public DbSet<Project> Projects { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Domain.TaskAgregate.Task> Tasks { get; set; }
+        public DbSet<EmployeeOnProject> EmployeesOnProjects { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<EmployeeOnProject>()
+                .HasKey(ep => new { ep.ProjectId, ep.EmployeeId });
+            modelBuilder.Entity<EmployeeOnProject>()
+                .HasOne(e => e.Project)
+                .WithMany("_employeesOnProject")
+                .HasForeignKey(ep => ep.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<EmployeeOnProject>()
+                .HasOne(ep => ep.Employee)
+                .WithMany("_employeeOnProjects")
+                .HasForeignKey(ep => ep.EmployeeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
 
