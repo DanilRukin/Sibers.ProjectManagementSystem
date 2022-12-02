@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Sibers.ProjectManagementSystem.Domain.EmployeeAgregate;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,8 +35,17 @@ namespace Sibers.ProjectManagementSystem.DataAccess.Configurations
             builder.OwnsOne(t => t.Priority);
 
             builder.Property(t => t.ProjectId).IsRequired();
+
             builder.Property(t => t.AuthorEmployeeId).IsRequired();
+            builder.HasOne<Employee>()
+                .WithMany("_createdTasks")
+                .HasForeignKey(t => t.AuthorEmployeeId)
+                .OnDelete(DeleteBehavior.Cascade);
             builder.Property(t => t.ContractorEmployeeId).IsRequired(false);
+            builder.HasOne<Employee>()
+                .WithMany("_executableTasks")
+                .HasForeignKey(t => t.ContractorEmployeeId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

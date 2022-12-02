@@ -1,0 +1,15 @@
+﻿//
+// Add migrations
+//
+Add-Migration InitProjectManagementSystemDbContext -c ProjectManagementSystemContext -o Migrations/ProjectManagementSystemDb
+//
+// Update-Database
+//
+Update-Database -Context ProjectManagementSystemContext
+
+
+// note: to add-migration and update database you need to select Sibers.ProjectManagementSystem.API as startup project,
+// you should select Sibers.ProjectManagementSystem.DataAccess.MSSQL project with your migrations assembly in PM console,
+// also you need to add the following references: 
+// 1) Sibers.ProjectManagementSystem.DataAccess.MSSQL has reference to Sibers.ProjectManagementSystem.DataAccess (ProjectManagementSystemContext is here)
+// 2) Sibers.ProjectManagementSystem.API has reference to Sibers.ProjectManagementSystem.DataAccess and Sibers.ProjectManagementSystem.DataAccess.MSSQL

@@ -18,8 +18,13 @@ namespace Sibers.ProjectManagementSystem.DataAccess
 {
     public class ProjectManagementSystemContext : DbContext, IUnitOfWork
     {
-        private IDbContextTransaction _transaction;
+        private IDbContextTransaction _transaction;  // it must be null. It means that no trasactions exist
         private IDomainEventDispatcher _domainEventDispatcher;
+
+        public ProjectManagementSystemContext(IDomainEventDispatcher domainEventDispatcher, DbContextOptions<ProjectManagementSystemContext> options) : base(options)
+        {
+            _domainEventDispatcher = domainEventDispatcher;
+        }
 
         public DbSet<Project> Projects { get; set; }
         public DbSet<Employee> Employees { get; set; }
@@ -28,19 +33,6 @@ namespace Sibers.ProjectManagementSystem.DataAccess
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<EmployeeOnProject>()
-                .HasKey(ep => new { ep.ProjectId, ep.EmployeeId });
-            modelBuilder.Entity<EmployeeOnProject>()
-                .HasOne(e => e.Project)
-                .WithMany("_employeesOnProject")
-                .HasForeignKey(ep => ep.ProjectId)
-                .OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<EmployeeOnProject>()
-                .HasOne(ep => ep.Employee)
-                .WithMany("_employeeOnProjects")
-                .HasForeignKey(ep => ep.EmployeeId)
-                .OnDelete(DeleteBehavior.Cascade);
-
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
 

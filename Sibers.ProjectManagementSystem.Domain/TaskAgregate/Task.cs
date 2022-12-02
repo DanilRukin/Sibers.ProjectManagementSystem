@@ -21,6 +21,8 @@ namespace Sibers.ProjectManagementSystem.Domain.TaskAgregate
         public int? ContractorEmployeeId { get; protected set; }
         public int AuthorEmployeeId { get; protected set; }
 
+        protected Task() { }
+
         internal Task(Guid id, string name, int projectId, int authorEmployeeId, Priority priority, int? contractorEmployeeId = null)
         {
             Id = id;

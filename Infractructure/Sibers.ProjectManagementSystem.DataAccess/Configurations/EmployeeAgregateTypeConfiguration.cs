@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Task = Sibers.ProjectManagementSystem.Domain.TaskAgregate.Task;
 
 namespace Sibers.ProjectManagementSystem.DataAccess.Configurations
 {
@@ -26,11 +27,22 @@ namespace Sibers.ProjectManagementSystem.DataAccess.Configurations
             builder.Ignore(e => e.OnTheseProjectsIsManager);
             builder.Ignore(e => e.OnTheseProjectsIsEmployee);
             builder.Ignore(e => e.Projects);
+            builder.Ignore(e => e.CreatedTasks);
+            builder.Ignore(e => e.ExecutableTasks);
 
             builder.HasMany<EmployeeOnProject>("_employeeOnProjects") // nameof(Employee._employeeOnProjects) is not working
                 .WithOne(ep => ep.Employee)
                 .HasForeignKey(ep => ep.EmployeeId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany<Task>("_createdTasks")
+                .WithOne()
+                .HasForeignKey(t => t.AuthorEmployeeId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.HasMany<Task>("_executableTasks")
+                .WithOne()
+                .HasForeignKey(t => t.ContractorEmployeeId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

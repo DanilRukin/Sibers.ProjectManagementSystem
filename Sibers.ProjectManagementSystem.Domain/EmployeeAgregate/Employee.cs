@@ -9,12 +9,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Task = Sibers.ProjectManagementSystem.Domain.TaskAgregate.Task;
+
 namespace Sibers.ProjectManagementSystem.Domain.EmployeeAgregate
 {
     public class Employee : EntityBase<int>, IAgregateRoot
     {
         public PersonalData PersonalData { get; set; }
         public Email Email { get; set; }
+
+        private List<Task> _createdTasks = new List<TaskAgregate.Task>();
+        public IReadOnlyCollection<Task> CreatedTasks => _createdTasks.AsReadOnly();
+
+        private List<Task> _executableTasks = new List<TaskAgregate.Task>();
+        public IReadOnlyCollection<Task> ExecutableTasks => _executableTasks.AsReadOnly();
 
         public IReadOnlyCollection<Project> OnTheseProjectsIsEmployee => _employeeOnProjects
             .Where(ep => ep.Role == EmployeeRoleOnProject.Employee)

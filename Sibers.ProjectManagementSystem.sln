@@ -11,7 +11,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSys
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSystem.TestsFakes", "Sibers.ProjectManagementSystem.TestsFakes\Sibers.ProjectManagementSystem.TestsFakes.csproj", "{A2807528-6F9D-4740-8EFC-DD9FEB79D83A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sibers.ProjectManagementSystem.DataAccess", "Infractructure\Sibers.ProjectManagementSystem.DataAccess\Sibers.ProjectManagementSystem.DataAccess.csproj", "{4D5E1BD5-990B-4AAC-AB92-4502EC5FAE91}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSystem.DataAccess", "Infractructure\Sibers.ProjectManagementSystem.DataAccess\Sibers.ProjectManagementSystem.DataAccess.csproj", "{4D5E1BD5-990B-4AAC-AB92-4502EC5FAE91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sibers.ProjectManagementSystem.IntegrationTests", "Sibers.ProjectManagementSystem.IntegrationTests\Sibers.ProjectManagementSystem.IntegrationTests.csproj", "{1FCA9890-C4B9-425B-9938-F49A2D9052B2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sibers.ProjectManagementSystem.API", "Sibers.ProjectManagementSystem.API\Sibers.ProjectManagementSystem.API.csproj", "{46EC18E1-593E-49FE-AC50-661273DABFC0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sibers.ProjectManagementSystem.DataAccess.MSSQL", "Sibers.ProjectManagementSystem.DataAccess.MSSQL\Sibers.ProjectManagementSystem.DataAccess.MSSQL.csproj", "{4021E0A3-D756-4967-8A10-B28ACA1AF65F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +45,18 @@ Global
 		{4D5E1BD5-990B-4AAC-AB92-4502EC5FAE91}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D5E1BD5-990B-4AAC-AB92-4502EC5FAE91}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D5E1BD5-990B-4AAC-AB92-4502EC5FAE91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FCA9890-C4B9-425B-9938-F49A2D9052B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FCA9890-C4B9-425B-9938-F49A2D9052B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FCA9890-C4B9-425B-9938-F49A2D9052B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FCA9890-C4B9-425B-9938-F49A2D9052B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46EC18E1-593E-49FE-AC50-661273DABFC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46EC18E1-593E-49FE-AC50-661273DABFC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46EC18E1-593E-49FE-AC50-661273DABFC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46EC18E1-593E-49FE-AC50-661273DABFC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4021E0A3-D756-4967-8A10-B28ACA1AF65F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4021E0A3-D756-4967-8A10-B28ACA1AF65F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4021E0A3-D756-4967-8A10-B28ACA1AF65F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4021E0A3-D756-4967-8A10-B28ACA1AF65F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
