@@ -111,7 +111,7 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain
             Project project = GetClearProjectWithId(1);
             Employee employee = GetClearEmployeeWithId(_testEmployeeId);
             project.AddEmployee(employee);
-            Task task = project.CreateTask("name", employee);
+            Task task = employee.CreateTask(project, "name");
             int contractorId = _testEmployeeId + 1;
             Employee employee1 = GetClearEmployeeWithId(contractorId);
             string message = $"No such employee (id: {contractorId}) on this project. Employee must work on project " +
@@ -126,7 +126,7 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain
         {
             Project project = GetClearProjectWithId(1);
             Employee employee = GetClearEmployeeWithId(_testEmployeeId);
-            Task task = project.CreateTask("name", employee);
+            Task task = employee.CreateTask(project, "name");
             string message = $"No such employee (id: {_testEmployeeId}) on this project. Employee must work on project " +
                 $"to become a contractor.";
 
@@ -140,9 +140,9 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain
             Project project = GetClearProjectWithId(_testProjectId);
             Employee employee = GetClearEmployeeWithId(_testEmployeeId);
             project.AddEmployee(employee);
-            Task task = project.CreateTask("name", employee);
+            Task task = employee.CreateTask(project, "name");
             Project project_2 = GetClearProjectWithId(2);
-            Task task_2 = project_2.CreateTask("name", employee);
+            Task task_2 = employee.CreateTask(project_2, "name");
             string message = $"No such task (id: {task_2.Id}) on a project.";
 
             var ex = Assert.Throws<DomainException>(() => project.ChangeTasksContractor(task_2, employee));
@@ -155,7 +155,7 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain
             Project project = GetClearProjectWithId(_testProjectId);
             Employee employee = GetClearEmployeeWithId(_testEmployeeId);
             project.AddEmployee(employee);
-            Task task = project.CreateTask("name", employee);
+            Task task = employee.CreateTask(project, "name");
             string message = $"Task is null.";
 
             var ex = Assert.Throws<DomainException>(() => project.ChangeTasksContractor(null, employee));
@@ -168,142 +168,33 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain
             Project project = GetClearProjectWithId(_testProjectId);
             Employee employee = GetClearEmployeeWithId(_testEmployeeId);
             project.AddEmployee(employee);
-            Task task = project.CreateTask("name", employee);
+            Task task = employee.CreateTask(project, "name");
             project.ChangeTasksContractor(task, employee);
 
             Assert.Equal(_testEmployeeId, project.Tasks.First(t => t.Id == task.Id).ContractorEmployeeId);
+            Assert.Contains(task, employee.ExecutableTasks);
         }
 
         [Fact]
-        public void StartTask_TaskIsNull_ThrowsDomainExceptionWithSpecifiedMessage()
+        public void ChangeTasksContractor_ChangingBetweenTwoEmployees_ContractorChanged()
         {
             Project project = GetClearProjectWithId(_testProjectId);
-            Employee employee = GetClearEmployeeWithId(_testEmployeeId);
-            project.AddEmployee(employee);
-            Task task = null;
-            string message = "Task is null";
+            Employee author = GetClearEmployeeWithId(1);
+            Employee oldContractor = GetClearEmployeeWithId(2);
+            Employee newContractor = GetClearEmployeeWithId(3);
+            project.AddEmployee(oldContractor);
+            project.AddEmployee(newContractor);
+            Task task = author.CreateTask(project, "name");
+            project.ChangeTasksContractor(task, oldContractor);
 
-            var ex = Assert.Throws<DomainException>(() => project.StartTask(task));
-            Assert.Equal(message, ex.Message);
+            project.ChangeTasksContractor(task, newContractor);
+
+            Assert.Empty(oldContractor.ExecutableTasks);
+            Assert.Contains(task, newContractor.ExecutableTasks);
+            Assert.Equal(task.ContractorEmployeeId, newContractor.Id);
         }
 
-        [Fact]
-        public void StartTask_NoSuchTask_ThrowsDomainExceptionWithSpecifiedMessage()
-        {
-            Project project = GetClearProjectWithId(_testProjectId);
-            Employee employee = GetClearEmployeeWithId(_testEmployeeId);
-            project.AddEmployee(employee);
-            Task task = project.CreateTask("name", employee);
-            project.ChangeTasksContractor(task, employee);
-            Project project2 = GetClearProjectWithId(_testProjectId + 1);
-            Task task2 = project2.CreateTask("name 2", employee);
-            string message = $"No such task (id: {task2.Id}) on project (id: {project.Id}).";
-
-            var ex = Assert.Throws<DomainException>(() => project.StartTask(task2));
-            Assert.Equal(message, ex.Message);
-        }
-
-        [Fact]
-        public void StartTask_TaskStarted()
-        {
-            Project project = GetClearProjectWithId(_testProjectId);
-            Employee employee = GetClearEmployeeWithId(_testEmployeeId);
-            project.AddEmployee(employee);
-            Task task = project.CreateTask("name", employee);
-            project.ChangeTasksContractor(task, employee);
-            project.StartTask(task);
-
-            Assert.Equal(TaskStatus.InProgress, project.Tasks.First(t => t.Id == task.Id).TaskStatus);
-            Assert.Equal(TaskStatus.InProgress, task.TaskStatus);
-        }
-
-        [Fact]
-        public void SuspendTask_TaskIsNull_ThrowsDomainExceptionWithSpecifiedMessage()
-        {
-            Project project = GetClearProjectWithId(_testProjectId);
-            Employee employee = GetClearEmployeeWithId(_testEmployeeId);
-            project.AddEmployee(employee);
-            Task task = null;
-            string message = "Task is null";
-
-            var ex = Assert.Throws<DomainException>(() => project.SuspendTask(task));
-            Assert.Equal(message, ex.Message);
-        }
-
-        [Fact]
-        public void SuspendTask_NoSuchTask_ThrowsDomainExceptionWithSpecifiedMessage()
-        {
-            Project project = GetClearProjectWithId(_testProjectId);
-            Employee employee = GetClearEmployeeWithId(_testEmployeeId);
-            project.AddEmployee(employee);
-            Task task = project.CreateTask("name", employee);
-            project.ChangeTasksContractor(task, employee);
-            Project project2 = GetClearProjectWithId(_testProjectId + 1);
-            Task task2 = project2.CreateTask("name 2", employee);
-            string message = $"No such task (id: {task2.Id}) on project (id: {project.Id}).";
-
-            var ex = Assert.Throws<DomainException>(() => project.SuspendTask(task2));
-            Assert.Equal(message, ex.Message);
-        }
-
-        [Fact]
-        public void SuspendTask_TaskSuspended()
-        {
-            Project project = GetClearProjectWithId(_testProjectId);
-            Employee employee = GetClearEmployeeWithId(_testEmployeeId);
-            project.AddEmployee(employee);
-            Task task = project.CreateTask("name", employee);
-            project.ChangeTasksContractor(task, employee);
-            project.StartTask(task);
-            project.SuspendTask(task);
-
-            Assert.Equal(TaskStatus.ToDo, project.Tasks.First(t => t.Id == task.Id).TaskStatus);
-            Assert.Equal(TaskStatus.ToDo, task.TaskStatus);
-        }
-
-        [Fact]
-        public void CompleteTask_TaskIsNull_ThrowsDomainExceptionWithSpecifiedMessage()
-        {
-            Project project = GetClearProjectWithId(_testProjectId);
-            Employee employee = GetClearEmployeeWithId(_testEmployeeId);
-            project.AddEmployee(employee);
-            Task task = null;
-            string message = "Task is null";
-
-            var ex = Assert.Throws<DomainException>(() => project.CompleteTask(task));
-            Assert.Equal(message, ex.Message);
-        }
-
-        [Fact]
-        public void CompleteTask_NoSuchTask_ThrowsDomainExceptionWithSpecifiedMessage()
-        {
-            Project project = GetClearProjectWithId(_testProjectId);
-            Employee employee = GetClearEmployeeWithId(_testEmployeeId);
-            project.AddEmployee(employee);
-            Task task = project.CreateTask("name", employee);
-            project.ChangeTasksContractor(task, employee);
-            Project project2 = GetClearProjectWithId(_testProjectId + 1);
-            Task task2 = project2.CreateTask("name 2", employee);
-            string message = $"No such task (id: {task2.Id}) on project (id: {project.Id}).";
-
-            var ex = Assert.Throws<DomainException>(() => project.CompleteTask(task2));
-            Assert.Equal(message, ex.Message);
-        }
-
-        [Fact]
-        public void CompleteTask_TaskCompleted()
-        {
-            Project project = GetClearProjectWithId(_testProjectId);
-            Employee employee = GetClearEmployeeWithId(_testEmployeeId);
-            project.AddEmployee(employee);
-            Task task = project.CreateTask("name", employee);
-            project.ChangeTasksContractor(task, employee);
-            project.StartTask(task);
-            project.CompleteTask(task);
-
-            Assert.Equal(TaskStatus.Completed, project.Tasks.First(t => t.Id == task.Id).TaskStatus);
-            Assert.Equal(TaskStatus.Completed, task.TaskStatus);
-        }
+        
 
         [Fact]
         public void AddEmployee_EmployeeWasAddedEarlier_ThrowsDomainExceptionWithSpecifiedMessage()
@@ -512,6 +403,23 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain
             Assert.DoesNotContain(employee, project.Employees);
             Assert.Empty(employee.OnTheseProjectsIsEmployee);
             Assert.Empty(employee.OnTheseProjectsIsManager);
+        }
+
+        [Fact]
+        public void RemoveContractorOfTask_ContractorRemoved()
+        {
+            Project project = GetClearProjectWithId(1);
+            Employee author = GetClearEmployeeWithId(1);
+            Employee contractor = GetClearEmployeeWithId(2);
+            Task task = author.CreateTask(project, "name");
+            project.AddEmployee(contractor);
+            project.ChangeTasksContractor(task, contractor);
+
+            project.RemoveContractorOfTask(task);
+
+            Assert.Contains(task, project.Tasks);
+            Assert.Empty(contractor.ExecutableTasks);
+            Assert.Null(task.ContractorEmployeeId);
         }
 
         private Project GetClearProjectWithId(int id)

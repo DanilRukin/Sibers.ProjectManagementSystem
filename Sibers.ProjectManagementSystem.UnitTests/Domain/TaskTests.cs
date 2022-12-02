@@ -18,7 +18,7 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain
             Project project = GetClearProjectWithId(1);
             int authorId = 1;
             Employee employee = GetClearEmployeeWithId(authorId);
-            Task task = project.CreateTask("name", employee);
+            Task task = employee.CreateTask(project, "name");
             string message = "Task can not be started because it has not contractor employee";
 
             var ex = Assert.Throws<DomainException>(() => task.Start());
@@ -31,7 +31,7 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain
             Project project = GetClearProjectWithId(1);
             int authorId = 1;
             Employee employee = GetClearEmployeeWithId(authorId);
-            Task task = project.CreateTask("name", employee);
+            Task task = employee.CreateTask(project, "name");
             int contractorId = 2;
             task.ChangeContractor(contractorId);
             task.Start();
@@ -47,7 +47,7 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain
             Project project = GetClearProjectWithId(1);
             int authorId = 1;
             Employee employee = GetClearEmployeeWithId(authorId);
-            Task task = project.CreateTask("name", employee);
+            Task task = employee.CreateTask(project, "name");
             int contractorId = 2;
             task.ChangeContractor(contractorId);
             string message = "Can not to suspend task because it was not started or was suspended";
@@ -62,7 +62,7 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain
             Project project = GetClearProjectWithId(1);
             int authorId = 1;
             Employee employee = GetClearEmployeeWithId(authorId);
-            Task task = project.CreateTask("name", employee);
+            Task task = employee.CreateTask(project, "name");
             int contractorId = 2;
             task.ChangeContractor(contractorId);
             task.Start();
@@ -79,7 +79,7 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain
             Project project = GetClearProjectWithId(1);
             int authorId = 1;
             Employee employee = GetClearEmployeeWithId(authorId);
-            Task task = project.CreateTask("name", employee);
+            Task task = employee.CreateTask(project, "name");
             int contractorId = 2;
             task.ChangeContractor(contractorId);
             string message = "Can not complete the task because it was not started";
@@ -94,7 +94,7 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain
             Project project = GetClearProjectWithId(1);
             int authorId = 1;
             Employee employee = GetClearEmployeeWithId(authorId);
-            Task task = project.CreateTask("name", employee);
+            Task task = employee.CreateTask(project, "name");
             int contractorId = 2;
             task.ChangeContractor(contractorId);
             task.Start();
@@ -111,7 +111,7 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain
             Project project = GetClearProjectWithId(1);
             int authorId = 1;
             Employee employee = GetClearEmployeeWithId(authorId);
-            Task task = project.CreateTask("name", employee);            
+            Task task = employee.CreateTask(project, "name");            
             string message = "New contractor is null. Use RemoveContractor() method instead.";
 
             var ex = Assert.Throws<DomainException>(() => task.ChangeContractor(null));
@@ -124,7 +124,7 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain
             Project project = GetClearProjectWithId(1);
             int authorId = 1, contractorId = 2;
             Employee employee = GetClearEmployeeWithId(authorId);
-            Task task = project.CreateTask("name", employee);
+            Task task = employee.CreateTask(project, "name");
             task.ChangeContractor(contractorId);
             string message = "This employee is already the contractor of this task";
 
@@ -138,7 +138,7 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain
             Project project = GetClearProjectWithId(1);
             int authorId = 1, contractorId = 2;
             Employee employee = GetClearEmployeeWithId(authorId);
-            Task task = project.CreateTask("name", employee);
+            Task task = employee.CreateTask(project, "name");
 
             task.ChangeContractor(contractorId);
 
@@ -151,7 +151,7 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain
             Project project = GetClearProjectWithId(1);
             int authorId = 1;
             Employee employee = GetClearEmployeeWithId(authorId);
-            Task task = project.CreateTask("name", employee);
+            Task task = employee.CreateTask(project, "name");
             int? contractorId = task.ContractorEmployeeId;
 
             task.RemoveContractor();
@@ -165,7 +165,7 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain
             Project project = GetClearProjectWithId(1);
             int authorId = 1;
             Employee employee = GetClearEmployeeWithId(authorId);
-            Task task = project.CreateTask("name", employee);
+            Task task = employee.CreateTask(project, "name");
             int contractorId = 2;
             task.ChangeContractor(contractorId);
 
@@ -180,7 +180,7 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain
             Project project = GetClearProjectWithId(1);
             int authorId = 1;
             Employee employee = GetClearEmployeeWithId(authorId);
-            Task task = project.CreateTask("name", employee);
+            Task task = employee.CreateTask(project, "name");
             int contractorId = 2;
             task.ChangeContractor(contractorId);
 

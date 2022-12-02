@@ -23,12 +23,14 @@ namespace Sibers.ProjectManagementSystem.Domain.TaskAgregate
 
         protected Task() { }
 
-        internal Task(Guid id, string name, int projectId, int authorEmployeeId, Priority priority, int? contractorEmployeeId = null)
+        internal Task(Guid id, string name, int projectId, int authorEmployeeId, Priority priority = null, int? contractorEmployeeId = null)
         {
             Id = id;
             ChangeName(name);
             ProjectId = projectId;
             AuthorEmployeeId = authorEmployeeId;
+            if (priority == null)
+                priority = Priority.Default();
             ChangePriority(priority);
             TaskStatus = TaskStatus.ToDo;
             ContractorEmployeeId = contractorEmployeeId;

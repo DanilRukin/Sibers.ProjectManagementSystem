@@ -193,18 +193,16 @@ namespace Sibers.ProjectManagementSystem.Domain.ProjectAgregate
             Priority = priority;
         }
 
-        public Task CreateTask(string name, Employee author, Priority priority = null)
+        internal void AddTask(Task task)
         {
-            if (priority == null)
-                priority = Priority.Default();
-            Task task = new Task(Guid.NewGuid(), name, Id, author.Id, priority);
-            _tasks = _tasks ?? new List<TaskAgregate.Task>();
+            if (task == null)
+                throw new ArgumentNullException(nameof(task));
+            _tasks ??= new List<TaskAgregate.Task>();
             if (!_tasks.Contains(task))
             {
                 _tasks.Add(task);
-                AddDomainEvent(new TaskCreatedDomainEvent(Id, task, author.Id));
+                AddDomainEvent(new TaskAddedDomainEvent(task, Id));
             }
-            return task.Clone();
         }
 
         public void RemoveTask(Task? task, int employeeId)
@@ -216,19 +214,25 @@ namespace Sibers.ProjectManagementSystem.Domain.ProjectAgregate
             }
         }
 
-        public void ChangeTasksContractor(Task task, Employee employee)
+        public void ChangeTasksContractor(Task task, Employee newContractor)
         {
-            if (!Employees.Contains(employee))
-                throw new DomainException($"No such employee (id: {employee.Id}) on this project." +
+            if (newContractor == null)
+                throw new DomainException("New contractor is null. Use RemoveContractorOfTask() method instead");
+            if (!Employees.Contains(newContractor))
+                throw new DomainException($"No such employee (id: {newContractor.Id}) on this project." +
                     $" Employee must work on project to become a contractor.");
             if (task != null)
             {
                 _tasks ??= new List<TaskAgregate.Task>();
                 if (_tasks.Contains(task))
                 {
-                    _tasks.Find(t => t.Id == task.Id)?.ChangeContractor(employee.Id);
-                    task.ChangeContractor(employee.Id);
-                    AddDomainEvent(new ContractorChangedDomainEvent(Id, task, employee.Id));
+                    Task? toChange = _tasks.Find(t => t.Id == task.Id);
+                    toChange.ChangeContractor(newContractor.Id);
+                    Employee oldContractor = Employees.FirstOrDefault(e => e.Id == task.ContractorEmployeeId);                   
+                    oldContractor?.StopBeingAContractorOfTask(toChange);
+                    newContractor.BecomeAContractorOfTask(toChange);
+                    task.ChangeContractor(newContractor.Id);
+                    AddDomainEvent(new ContractorChangedDomainEvent(Id, task, newContractor.Id));
                 }
                 else
                     throw new DomainException($"No such task (id: {task.Id}) on a project.");
@@ -237,21 +241,38 @@ namespace Sibers.ProjectManagementSystem.Domain.ProjectAgregate
                 throw new DomainException("Task is null.");
         }
 
-        public void StartTask(Task task)
+        public void RemoveContractorOfTask(Task task)
+        {
+            if (task == null)
+                throw new ArgumentNullException(nameof(task));
+            _tasks ??= new List<TaskAgregate.Task>();
+            if (_tasks.Contains(task))
+            {
+                Task? toChange = _tasks.Find(t => t.Id == task.Id);
+                toChange.RemoveContractor();
+                Employee oldContractor = Employees.FirstOrDefault(e => e.Id == task.ContractorEmployeeId);
+                oldContractor?.StopBeingAContractorOfTask(toChange);
+                task.RemoveContractor();
+            }
+            else
+                throw new DomainException($"No such task (id: {task.Id}) on a project.");
+        }
+
+        internal void StartTask(Task task)
         {
             ThrowIfNotValidTask(task);
             _tasks.First(t => t.Id == task.Id).Start();
             task.Start();
         }
 
-        public void SuspendTask(Task task)
+        internal void SuspendTask(Task task)
         {
             ThrowIfNotValidTask(task);
             _tasks.First(t => t.Id == task.Id).Suspend();
             task.Suspend();
         }
 
-        public void CompleteTask(Task task)
+        internal void CompleteTask(Task task)
         {
             ThrowIfNotValidTask(task);
             _tasks.First(t => t.Id == task.Id).Complete();

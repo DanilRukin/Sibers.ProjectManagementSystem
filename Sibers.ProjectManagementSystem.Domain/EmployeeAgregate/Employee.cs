@@ -115,5 +115,76 @@ namespace Sibers.ProjectManagementSystem.Domain.EmployeeAgregate
                 throw new DomainException("Email does not contain '@'");
             Email = new Email(email);
         }
+
+        public Task CreateTask(Project project, string name, Priority priority = null)
+        {
+            if (project == null)
+                throw new ArgumentNullException(nameof(project));
+            Task result = new Task(Guid.NewGuid(), name, project.Id, Id, priority);
+            _createdTasks ??= new List<TaskAgregate.Task>();
+            if (!_createdTasks.Contains(result))
+            {
+                _createdTasks.Add(result);
+                project.AddTask(result);
+            }
+            return result.Clone();
+        }
+
+        internal void BecomeAContractorOfTask(Task task)
+        {
+            if (task == null)
+                throw new ArgumentNullException(nameof(task));
+            _executableTasks ??= new List<TaskAgregate.Task>();
+            if (!_executableTasks.Contains(task))
+            {
+                _executableTasks.Add(task);
+            }
+            else
+                throw new DomainException("This employee is already the contractor of this task");
+        }
+
+        internal void StopBeingAContractorOfTask(Task task)
+        {
+            if (task == null)
+                throw new ArgumentNullException(nameof(task));
+            _executableTasks ??= new List<TaskAgregate.Task>();
+            if (_executableTasks.Contains(task))
+            {
+                _executableTasks.Remove(task);
+            }
+            else
+                throw new DomainException($"Employee (id: {Id}) not execute task (id: {task.Id})");
+        }
+
+        public void StartTask(Project project, Task task)
+        {
+            ThrowIfNotValid(project, task, "start");
+            project.StartTask(task);
+        }
+
+        public void SuspendTask(Project project, Task task)
+        {
+            ThrowIfNotValid(project, task, "suspend");
+            project.SuspendTask(task);
+        }
+
+        public void CompleteTask(Project project, Task task)
+        {
+            ThrowIfNotValid(project, task, "complete");
+            //StopBeingAContractorOfTask(task);  // is it true?
+            project.CompleteTask(task);
+        }
+
+        private void ThrowIfNotValid(Project project, Task task, string operation)
+        {
+            if (task == null)
+                throw new ArgumentNullException(nameof(task));
+            if (project == null)
+                throw new ArgumentNullException(nameof(task));
+            _executableTasks ??= new List<TaskAgregate.Task>();
+            if (!_executableTasks.Contains(task))
+                throw new DomainException($"Employee (id: {Id}) can not {operation} task (id: {task.Id}) " +
+                    $"because is not a contractor of this task");
+        }
     }
 }
