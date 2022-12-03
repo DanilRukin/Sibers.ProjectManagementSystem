@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Infractructure\Sibers.ProjectManagementSystem.DataAccess\Sibers.ProjectManagementSystem.DataAccess.csproj" />
+    <ProjectReference Include="..\Sibers.ProjectManagementSystem.Domain\Sibers.ProjectManagementSystem.Domain.csproj" />
+    <ProjectReference Include="..\Sibers.ProjectManagementSystem.SharedKernel\Sibers.ProjectManagementSystem.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>

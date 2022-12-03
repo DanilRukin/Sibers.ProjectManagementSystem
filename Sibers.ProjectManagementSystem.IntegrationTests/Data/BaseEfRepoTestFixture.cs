@@ -13,7 +13,15 @@ using System.Threading.Tasks;
 
 namespace Sibers.ProjectManagementSystem.IntegrationTests.Data
 {
-    public abstract class BaseEfRepoTestFixture
+    public abstract class BaseEfRepoTestFixture<TRepository, TAgregateRoot> : BaseEfRepoTestFixture<TAgregateRoot>
+        where TAgregateRoot : class, IAgregateRoot
+        where TRepository : class, IRepository<TAgregateRoot>
+    {
+        protected override abstract TRepository GetRepository();
+    }
+
+    public abstract class BaseEfRepoTestFixture<TAgregateRoot> 
+        where TAgregateRoot : class, IAgregateRoot
     {
         protected ProjectManagementSystemContext _context;
         public BaseEfRepoTestFixture()
@@ -36,5 +44,7 @@ namespace Sibers.ProjectManagementSystem.IntegrationTests.Data
 
             return builder.Options;
         }
+
+        protected abstract IRepository<TAgregateRoot> GetRepository();
     }
 }

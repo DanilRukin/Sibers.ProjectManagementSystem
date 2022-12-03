@@ -13,11 +13,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSys
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSystem.DataAccess", "Infractructure\Sibers.ProjectManagementSystem.DataAccess\Sibers.ProjectManagementSystem.DataAccess.csproj", "{4D5E1BD5-990B-4AAC-AB92-4502EC5FAE91}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sibers.ProjectManagementSystem.IntegrationTests", "Sibers.ProjectManagementSystem.IntegrationTests\Sibers.ProjectManagementSystem.IntegrationTests.csproj", "{1FCA9890-C4B9-425B-9938-F49A2D9052B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSystem.IntegrationTests", "Sibers.ProjectManagementSystem.IntegrationTests\Sibers.ProjectManagementSystem.IntegrationTests.csproj", "{1FCA9890-C4B9-425B-9938-F49A2D9052B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sibers.ProjectManagementSystem.API", "Sibers.ProjectManagementSystem.API\Sibers.ProjectManagementSystem.API.csproj", "{46EC18E1-593E-49FE-AC50-661273DABFC0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSystem.API", "Sibers.ProjectManagementSystem.API\Sibers.ProjectManagementSystem.API.csproj", "{46EC18E1-593E-49FE-AC50-661273DABFC0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sibers.ProjectManagementSystem.DataAccess.MSSQL", "Sibers.ProjectManagementSystem.DataAccess.MSSQL\Sibers.ProjectManagementSystem.DataAccess.MSSQL.csproj", "{4021E0A3-D756-4967-8A10-B28ACA1AF65F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSystem.DataAccess.MSSQL", "Sibers.ProjectManagementSystem.DataAccess.MSSQL\Sibers.ProjectManagementSystem.DataAccess.MSSQL.csproj", "{4021E0A3-D756-4967-8A10-B28ACA1AF65F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSystem.Infrastructure", "Sibers.ProjectManagementSystem.Infrastructure\Sibers.ProjectManagementSystem.Infrastructure.csproj", "{5C273E44-DB53-4DD5-92F4-643FCD2AB25A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sibers.ProjectManagementSystem.Application", "Sibers.ProjectManagementSystem.Application\Sibers.ProjectManagementSystem.Application.csproj", "{02BFF6EA-6F62-4BA5-9DFD-5B881C7F5005}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +61,14 @@ Global
 		{4021E0A3-D756-4967-8A10-B28ACA1AF65F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4021E0A3-D756-4967-8A10-B28ACA1AF65F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4021E0A3-D756-4967-8A10-B28ACA1AF65F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C273E44-DB53-4DD5-92F4-643FCD2AB25A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C273E44-DB53-4DD5-92F4-643FCD2AB25A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C273E44-DB53-4DD5-92F4-643FCD2AB25A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C273E44-DB53-4DD5-92F4-643FCD2AB25A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02BFF6EA-6F62-4BA5-9DFD-5B881C7F5005}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02BFF6EA-6F62-4BA5-9DFD-5B881C7F5005}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02BFF6EA-6F62-4BA5-9DFD-5B881C7F5005}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02BFF6EA-6F62-4BA5-9DFD-5B881C7F5005}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
