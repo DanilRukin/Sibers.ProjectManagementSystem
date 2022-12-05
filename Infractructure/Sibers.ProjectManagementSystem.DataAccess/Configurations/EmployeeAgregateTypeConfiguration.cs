@@ -34,11 +34,15 @@ namespace Sibers.ProjectManagementSystem.DataAccess.Configurations
                 .WithOne(ep => ep.Employee)
                 .HasForeignKey(ep => ep.EmployeeId)
                 .OnDelete(DeleteBehavior.Cascade);
+            builder.Navigation("_employeeOnProjects")
+                .AutoInclude()
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
 
             builder.HasMany<Task>("_createdTasks")
                 .WithOne()
                 .HasForeignKey(t => t.AuthorEmployeeId)
                 .OnDelete(DeleteBehavior.Cascade);
+
             builder.HasMany<Task>("_executableTasks")
                 .WithOne()
                 .HasForeignKey(t => t.ContractorEmployeeId)
