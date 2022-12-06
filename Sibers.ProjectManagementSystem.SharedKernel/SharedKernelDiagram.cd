@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Sibers.ProjectManagementSystem.SharedKernel.BaseSpecifications.AndSpecification&lt;T&gt;" Collapsed="true">
+    <Position X="0.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAAAAAAAAAAAAAAAAAAQgAAAAAAAAAAAA=</HashCode>
+      <FileName>BaseSpecifications\AndSpecification.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.SharedKernel.BaseSpecifications.NotSpecification&lt;T&gt;" Collapsed="true">
+    <Position X="3" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAA=</HashCode>
+      <FileName>BaseSpecifications\NotSpecification.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.SharedKernel.BaseSpecifications.OrSpecification&lt;T&gt;" Collapsed="true">
+    <Position X="5.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAAAAAAAAAAAAAAAAAAQgAAAAAAAAAAAA=</HashCode>
+      <FileName>BaseSpecifications\OrSpecification.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.SharedKernel.BaseSpecifications.ParameterReplacer" Collapsed="true">
+    <Position X="6.75" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>BaseSpecifications\ParameterReplacer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.SharedKernel.BaseSpecifications.Specification&lt;T&gt;" Collapsed="true">
+    <Position X="3" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAIAAAAAAAAAAAAAAAAAAAACAAAABgAAAAAAAAAAA=</HashCode>
+      <FileName>BaseSpecifications\Specification.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.SharedKernel.Result&lt;T&gt;" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="6.75" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABAACIAAAAQAAQAAAAAAAAgAAAAAAAAAgIAAAEAA=</HashCode>
+      <FileName>Results\Result.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.SharedKernel.DomainEvent" BaseTypeListCollapsed="true">
+    <Position X="9" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DomainEvent.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.SharedKernel.DomainEventDispatcher" BaseTypeListCollapsed="true">
+    <Position X="10.75" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DomainEventDispatcher.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.SharedKernel.EntityBase&lt;TKey&gt;" BaseTypeListCollapsed="true">
+    <Position X="12.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACBAgAAAAAAAAAgAAAAAAAAAAAAAEEAAABAAACAAA=</HashCode>
+      <FileName>EntityBase.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.SharedKernel.ValueObject">
+    <Position X="10.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAAAAAAAoAAAAAAAAAAAAIAAAAAAAAAAAiA=</HashCode>
+      <FileName>ValueObject.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="Sibers.ProjectManagementSystem.SharedKernel.Interfaces.IAgregateRoot">
+    <Position X="14.75" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Interfaces\IAgregateRoot.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Sibers.ProjectManagementSystem.SharedKernel.Interfaces.IDomainEventDispatcher">
+    <Position X="14.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Interfaces\IDomainEventDispatcher.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Sibers.ProjectManagementSystem.SharedKernel.Interfaces.IReadRepository&lt;T&gt;" Collapsed="true">
+    <Position X="0.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAIAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Interfaces\IReadRepository.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Sibers.ProjectManagementSystem.SharedKernel.Interfaces.IRepository&lt;T&gt;" Collapsed="true">
+    <Position X="0.5" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAADAAAAAAAAAAAAAEAAAAAAAgAAAAAAAAAAIA=</HashCode>
+      <FileName>Interfaces\IRepository.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Sibers.ProjectManagementSystem.SharedKernel.Interfaces.ISpecification&lt;T&gt;">
+    <Position X="3" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAA=</HashCode>
+      <FileName>Interfaces\ISpecification.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Sibers.ProjectManagementSystem.SharedKernel.Interfaces.IUnitOfWork">
+    <Position X="2.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAABIAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAIAA=</HashCode>
+      <FileName>Interfaces\IUnitOfWork.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Sibers.ProjectManagementSystem.SharedKernel.IResult">
+    <Position X="5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABAAAIAAAAQAAQAAAAAAAAAAAAAAAAAAAAAAAEAA=</HashCode>
+      <FileName>Results\IResult.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Sibers.ProjectManagementSystem.SharedKernel.IDomainObject">
+    <Position X="12.75" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAgAAAAAAAAAAAAAAAAAAAAAAAEAAAABAAACAAA=</HashCode>
+      <FileName>EntityBase.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="Sibers.ProjectManagementSystem.SharedKernel.ResultStatus">
+    <Position X="6.75" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAABAAAAAAA=</HashCode>
+      <FileName>Results\ResultStatus.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

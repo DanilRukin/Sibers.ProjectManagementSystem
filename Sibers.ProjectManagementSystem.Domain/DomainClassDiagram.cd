@@ -1,0 +1,231 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Sibers.ProjectManagementSystem.Domain.EmployeeAgregate.Specifications.EmployeeByIdSpecification" Collapsed="true">
+    <Position X="10" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>EmployeeAgregate\Specifications\EmployeeByIdSpecification.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.EmployeeAgregate.Email">
+    <Position X="14.75" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>EmployeeAgregate\Email.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.EmployeeAgregate.Employee" BaseTypeListCollapsed="true">
+    <Position X="16.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAIIQBAAAiCAAAghgQAAKgAAAAIAAABAAAAAQAgBAxA=</HashCode>
+      <FileName>EmployeeAgregate\Employee.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.EmployeeAgregate.PersonalData">
+    <Position X="14.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAGAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAg=</HashCode>
+      <FileName>EmployeeAgregate\PersonalData.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.Exceptions.DomainDateException" Collapsed="true">
+    <Position X="0.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Exceptions\DomainDateException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.Exceptions.DomainException" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Exceptions\DomainException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.ProjectAgregate.Events.ContractorChangedDomainEvent" Collapsed="true">
+    <Position X="3" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAEAAAAAAAAA=</HashCode>
+      <FileName>ProjectAgregate\Events\ContractorChangedDomainEvent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.ProjectAgregate.Events.EmployeeAddedToTheProjectDomainEvent" Collapsed="true">
+    <Position X="8.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAACAAA=</HashCode>
+      <FileName>ProjectAgregate\Events\EmployeeAddedToTheProjectDomainEvent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.ProjectAgregate.Events.EmployeePromotedToManagerDomainEvent" Collapsed="true">
+    <Position X="4.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAACAAA=</HashCode>
+      <FileName>ProjectAgregate\Events\EmployeePromotedToManagerDomainEvent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.ProjectAgregate.Events.EmployeeRemovedFromTheProjectDomainEvent" Collapsed="true">
+    <Position X="6.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAACAAA=</HashCode>
+      <FileName>ProjectAgregate\Events\EmployeeRemovedFromTheProjectDomainEvent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.ProjectAgregate.Events.EmployeeTransferredToAnotherProjectDomainEvent" Collapsed="true">
+    <Position X="8.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAIAAAAAAACAAA=</HashCode>
+      <FileName>ProjectAgregate\Events\EmployeeTransferredToAnotherProjectDomainEvent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.ProjectAgregate.Events.ManagerDemotedToEmployeeDomainEvent" Collapsed="true">
+    <Position X="10" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAIAAAAAAAAABAAAAAAAAAAAAAACAAA=</HashCode>
+      <FileName>ProjectAgregate\Events\ManagerDemotedToEmployeeDomainEvent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.ProjectAgregate.Events.ManagerWasDismissedDomainEvent" Collapsed="true">
+    <Position X="3" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAIAAAAAAAAABAAAAAAAAAAAAAACAAA=</HashCode>
+      <FileName>ProjectAgregate\Events\ManagerWasDismissedDomainEvent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.ProjectAgregate.Events.ProjectCreatedDomainEvent" Collapsed="true">
+    <Position X="4.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ProjectAgregate\Events\ProjectCreatedDomainEvent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.ProjectAgregate.Events.TaskAddedDomainEvent" Collapsed="true">
+    <Position X="8.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAEAAAAAAAAA=</HashCode>
+      <FileName>ProjectAgregate\Events\TaskAddedDomainEvent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.ProjectAgregate.Events.TaskCreatedDomainEvent" Collapsed="true">
+    <Position X="3" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAEAAAAACAAA=</HashCode>
+      <FileName>ProjectAgregate\Events\TaskCreatedDomainEvent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.ProjectAgregate.Events.TaskRemovedDomainEvent" Collapsed="true">
+    <Position X="4.75" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAEAAAAACAAA=</HashCode>
+      <FileName>ProjectAgregate\Events\TaskRemovedDomainEvent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.ProjectAgregate.Specifications.ProjectByIdSpecification" Collapsed="true">
+    <Position X="10" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ProjectAgregate\Specifications\ProjectByIdSpecification.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.ProjectAgregate.Specifications.ProjectByNameSpecification" Collapsed="true">
+    <Position X="3" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ProjectAgregate\Specifications\ProjectByNameSpecification.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.ProjectAgregate.Priority">
+    <Position X="14.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAIAAAIAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>ProjectAgregate\Priority.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.ProjectAgregate.Project" BaseTypeListCollapsed="true">
+    <Position X="12.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgIBGAAAIAAAEwEAASAYAQgCgChBABACgAIAEAAAAA=</HashCode>
+      <FileName>ProjectAgregate\Project.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.Services.TransferService" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="10" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAIAgAAAAAAQAAAAAAACAgAgAACAAAAAAIAA=</HashCode>
+      <FileName>Services\TransferService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.TaskAgregate.Events.TaskCompletedDomainEvent" Collapsed="true">
+    <Position X="10" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAEAAAAAAABAgAAAAAABAAAAAAAAA=</HashCode>
+      <FileName>TaskAgregate\Events\TaskCompletedDomainEvent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.TaskAgregate.Events.TaskStartedDomainEvent" Collapsed="true">
+    <Position X="6.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAEAAAAAAABAgAAAAAABAAAAAAAAA=</HashCode>
+      <FileName>TaskAgregate\Events\TaskStartedDomainEvent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.TaskAgregate.Events.TaskSuspendedDomainEvent" Collapsed="true">
+    <Position X="8.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAEAAAAAAABAgAAAAAABAAAAAAAAA=</HashCode>
+      <FileName>TaskAgregate\Events\TaskSuspendedDomainEvent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.TaskAgregate.Task">
+    <Position X="18.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAACAgAAIEAAAAYAQAhAIAACAAAAAAAFAAABA=</HashCode>
+      <FileName>TaskAgregate\Task.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sibers.ProjectManagementSystem.Domain.EmployeeOnProject">
+    <Position X="18.5" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAABMAAACAAADAAAAAAAAAAAAAACAAA=</HashCode>
+      <FileName>EmployeeOnProject.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="Sibers.ProjectManagementSystem.Domain.EmployeeAgregate.IEmployeeRepository" Collapsed="true">
+    <Position X="3" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAA=</HashCode>
+      <FileName>EmployeeAgregate\IEmployeeRepository.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Sibers.ProjectManagementSystem.Domain.ProjectAgregate.IProjectRepository" Collapsed="true">
+    <Position X="4.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ProjectAgregate\IProjectRepository.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Sibers.ProjectManagementSystem.Domain.Services.ITransferService" Collapsed="true">
+    <Position X="6.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAIAgAAAAAAQAAAAAAACAAAgAAAAAAAAAIAA=</HashCode>
+      <FileName>Services\ITransferService.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="Sibers.ProjectManagementSystem.Domain.TaskAgregate.TaskStatus">
+    <Position X="14.75" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAQAAAAIAAAAAAAAAAAAAAAAAAAAAABAAAAA=</HashCode>
+      <FileName>TaskAgregate\TaskStatus.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="Sibers.ProjectManagementSystem.Domain.EmployeeRoleOnProject">
+    <Position X="16.5" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAACAAABAAAAAAAAAAAAAA=</HashCode>
+      <FileName>EmployeeOnProject.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
