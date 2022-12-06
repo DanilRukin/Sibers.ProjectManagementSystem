@@ -8,6 +8,6 @@ namespace Sibers.ProjectManagementSystem.SharedKernel
 {
     public enum ResultStatus
     {
-        Ok, Error
+        Ok, Error, NotFound
     }
 }

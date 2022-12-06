@@ -8,6 +8,7 @@ namespace Sibers.ProjectManagementSystem.SharedKernel
 {
     public class Result<T> : IResult
     {
+        protected Result() { }
         public Result(T value)
         {
             Value = value;
@@ -41,5 +42,15 @@ namespace Sibers.ProjectManagementSystem.SharedKernel
         }
 
         public static Result<T> Error(params string[] errors) => new Result<T>(ResultStatus.Error) { Errors = errors };
+
+        public static Result<T> NotFound()
+        {
+            return new Result<T>(ResultStatus.NotFound);
+        }
+
+        public static Result<T> NotFound(params string[] errorMessages)
+        {
+            return new Result<T>(ResultStatus.NotFound) { Errors = errorMessages };
+        }
     }
 }

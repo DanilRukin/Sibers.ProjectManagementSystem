@@ -14,6 +14,6 @@ namespace Sibers.ProjectManagementSystem.Application.Dtos
         public string Email { get; set; }
         public List<Guid> ExecutableTasksIds { get; set; }
         public List<Guid> CreatedTasksIds { get; set; }
-
+        public int Id { get; set; }
     }
 }

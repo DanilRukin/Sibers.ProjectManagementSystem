@@ -7,8 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Infractructure\Sibers.ProjectManagementSystem.DataAccess\Sibers.ProjectManagementSystem.DataAccess.csproj" />
     <ProjectReference Include="..\Sibers.ProjectManagementSystem.Domain\Sibers.ProjectManagementSystem.Domain.csproj" />
     <ProjectReference Include="..\Sibers.ProjectManagementSystem.SharedKernel\Sibers.ProjectManagementSystem.SharedKernel.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Queries\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="11.1.0" />
   </ItemGroup>
 
 </Project>
