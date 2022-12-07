@@ -10,17 +10,20 @@ using System.Threading.Tasks;
 namespace Sibers.ProjectManagementSystem.Application.Commands
 {
     [DataContract]
-    public class DeleteProjectCommand : IRequest<IResult>
+    public class FireManagerCommand : IRequest<IResult>
     {
         [DataMember]
         public int ProjectId { get; private set; }
+        [DataMember]
+        public string Reason { get; private set; }
 
-        public DeleteProjectCommand(int projectId)
+        public FireManagerCommand(int projectId, string reason)
         {
             ProjectId = projectId;
+            Reason = reason ?? throw new ArgumentNullException(nameof(reason));
         }
 
-        public DeleteProjectCommand()
+        public FireManagerCommand()
         {
         }
     }

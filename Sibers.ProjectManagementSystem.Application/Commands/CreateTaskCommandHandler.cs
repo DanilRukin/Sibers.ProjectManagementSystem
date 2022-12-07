@@ -39,6 +39,9 @@ namespace Sibers.ProjectManagementSystem.Application.Commands
                 if (author == null)
                     return Result<TaskDto>.NotFound($"No employee with id: {request.AuthorId}");
                 var task = author.CreateTask(project, request.TaskDto.Name, request.TaskDto.Priority);
+                _context.Projects.Update(project);
+                _context.Employees.Update(author);
+                //_context.Tasks.Add(task);  // ??
                 await _context.SaveEntitiesAsync(cancellationToken);
                 request.TaskDto.ProjectId = task.ProjectId;
                 request.TaskDto.AuthorEmployeeId = task.AuthorEmployeeId;               

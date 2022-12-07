@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Sibers.ProjectManagementSystem.Domain.EmployeeAgregate;
+using Sibers.ProjectManagementSystem.Domain.ProjectAgregate;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,11 +10,6 @@ namespace Sibers.ProjectManagementSystem.Domain.Services
 {
     public interface ITransferService
     {
-        Task AddEmployeeToProject(int employeeId, int projectId, CancellationToken cancellationToken = default);
-        Task RemoveEmployeeFromProject(int employeeId, int projectId, CancellationToken cancellationToken = default);
-        Task PromoteEmployeeToManager(int employeeId, int projectId, CancellationToken cancellationToken = default);
-        Task DemoteManagerToEmployee(int projectId, string reason = "", CancellationToken cancellationToken = default);
-        Task FireManager(int projectId, string reason = "", CancellationToken cancellationToken = default);
-        Task TransferEmployeeToAnotherProject(int employeeId, int currentProjectId, int futureProjectId, CancellationToken cancellationToken = default);
+        void TransferEmployeeToAnotherProject(Employee employee, Project currentProject, Project futureProject);
     }
 }

@@ -21,8 +21,6 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain.Services
         private int _testProjectId;
         private int _testEmployeeId;
 
-        private FakeGenericRepository<Project> _fakeProjectRepository;
-        private FakeGenericRepository<Employee> _fakeEmployeeRepository;
         private ITransferService _transferService;
 
         public TransferServiceTests()
@@ -33,270 +31,98 @@ namespace Sibers.ProjectManagementSystem.UnitTests.Domain.Services
             _testEmployeeId = 1;
         }
 
-
-        [Fact]
-        public void AddEmployeeToProject_EmployeeAndProjectShouldKnowAboutEachOther()
-        {
-            ResetServiceAndRepositories();
-            _transferService.AddEmployeeToProject(_testEmployeeId, _testProjectId).Wait();
-            Project project = _fakeProjectRepository.Find(new ProjectByIdSpecification(_testProjectId)).Result;
-            Employee employee = _fakeEmployeeRepository.Find(new EmployeeByIdSpecification(_testEmployeeId)).Result;
-
-            Assert.NotEmpty(project.Employees);
-            Assert.Contains(employee, project.Employees);
-
-            Assert.NotEmpty(employee.OnTheseProjectsIsEmployee);
-            Assert.Contains(project, employee.OnTheseProjectsIsEmployee);
-        }
-
-        [Fact]
-        public void RemoveEmployeeFromProject_BothCollectionsShouldBeEmpty()
-        {
-            ResetServiceAndRepositories();
-            _transferService.AddEmployeeToProject(_testEmployeeId, _testProjectId).Wait();
-
-            _transferService.RemoveEmployeeFromProject(_testEmployeeId, _testProjectId).Wait();
-
-            Project project = _fakeProjectRepository.Find(new ProjectByIdSpecification(_testProjectId)).Result;
-            Employee employee = _fakeEmployeeRepository.Find(new EmployeeByIdSpecification(_testEmployeeId)).Result;
-
-            Assert.Empty(project.Employees);
-            Assert.Empty(employee.OnTheseProjectsIsEmployee);
-        }
-
-        [Fact]
-        public void PromoteEmployeeToManager_EmployeeWasNotAddedToTheProjectFirstly_ShouldThrowDomainExceptionWithSpecifiedMessage()
-        {
-            ResetServiceAndRepositories();
-            string message = "Current emplyee is not work on this project. Add him/her to project first";
-
-            var result = Assert.Throws<AggregateException>(() =>
-                _transferService.PromoteEmployeeToManager(_testEmployeeId, _testProjectId).Wait());
-            Assert.NotNull(result.InnerException);
-            Assert.Equal(result.InnerException.GetType(), typeof(DomainException));
-            Assert.Equal(message, result.InnerException.Message);
-        }
-
-        [Fact]
-        public void PromoteEmployeeToManager_EmployeeIsWorking_EmployeesCollectionOfProjectShouldBeEmptyAndManagerNotNullAndManagersCollectionOfEmployeeShouldNotBeEmpty()
-        {
-            ResetServiceAndRepositories();
-            _transferService.AddEmployeeToProject(_testEmployeeId, _testProjectId).Wait();
-            _transferService.PromoteEmployeeToManager(_testEmployeeId, _testProjectId).Wait();
-
-            Project project = _fakeProjectRepository.Find(new ProjectByIdSpecification(_testProjectId)).Result;
-            Employee employee = _fakeEmployeeRepository.Find(new EmployeeByIdSpecification(_testEmployeeId)).Result;
-
-            Assert.NotNull(project.Manager);
-            Assert.Equal(employee, project.Manager);
-
-            Assert.Empty(employee.OnTheseProjectsIsEmployee);
-            Assert.Contains(project, employee.OnTheseProjectsIsManager);
-            Assert.Single(employee.OnTheseProjectsIsManager);
-        }
-
-        [Fact]
-        public void PromoteEmployeeToManager_TryingToPromoteAnotherEmployeeButCurrentManagerIsNotNull_ShouldThrowDomainExceptionWithSpecifiedMessage()
-        {
-            ResetServiceAndRepositories();
-            Employee second = new Employee(2, new PersonalData("FirstName", "LastName", "Patronymic"),
-                new Email("goblin@gmail.com"));
-            _fakeEmployeeRepository.AddAsync(second).Wait();
-
-            _transferService.AddEmployeeToProject(_testEmployeeId, _testProjectId).Wait();
-            _transferService.AddEmployeeToProject(second.Id, _testProjectId).Wait();
-            _transferService.PromoteEmployeeToManager(_testEmployeeId, _testProjectId).Wait();
-
-            string message = "You must demote or fire current manager first";
-
-            var ex = Assert.Throws<AggregateException>(() => 
-                _transferService.PromoteEmployeeToManager(second.Id, _testProjectId).Wait());
-            Assert.NotNull(ex.InnerException);
-            Assert.Equal(typeof(DomainException), ex.InnerException.GetType());
-            Assert.Equal(message, ex.InnerException.Message);
-        }
-
-        [Fact]
-        public void PromoteEmployeeToManager_TryingToPromoteEmployeeTwice_ShouldThrowDomainExceptionWithSpecifiedMessage()
-        {
-            ResetServiceAndRepositories();
-            _transferService.AddEmployeeToProject(_testEmployeeId, _testProjectId).Wait();
-            _transferService.PromoteEmployeeToManager(_testEmployeeId, _testProjectId).Wait();
-            string message = "This emplyee is already manager";
-
-            var ex = Assert.Throws<AggregateException>(() 
-                => _transferService.PromoteEmployeeToManager(_testEmployeeId, _testProjectId).Wait());
-            Assert.NotNull(ex.InnerException);
-            Assert.Equal(typeof(DomainException), ex.InnerException.GetType());
-            Assert.Equal(message, ex.InnerException.Message);
-        }
-
-        [Fact]
-        public void DemoteManagerToEmployee_ProjectHasNoManager_ShouldThrowDomainExceptionWithSpecifiedMessage()
-        {
-            ResetServiceAndRepositories();
-            _transferService.AddEmployeeToProject(_testEmployeeId, _testProjectId).Wait();
-            string message = "Project has no manager. You have to promote one of the employees to manager.";
-
-            var ex = Assert.Throws<AggregateException>(() 
-                => _transferService.DemoteManagerToEmployee(_testProjectId).Wait());
-            Assert.NotNull(ex.InnerException);
-            Assert.Equal(typeof(DomainException), ex.InnerException.GetType());
-            Assert.Equal(message, ex.InnerException.Message);
-        }
-
-        [Fact]
-        public void DemoteManagerToEmployee_ManagerShouldBeNullAndCollectionOfEmployeesShouldContainsEmployeeAndCollectionOfProjectsManagersIdsShouldContainsProjectsIdAndCollectionOfProjectsEmployeesIdsShouldBeEmpty()
-        {
-            ResetServiceAndRepositories();
-            _transferService.AddEmployeeToProject(_testEmployeeId, _testProjectId).Wait();
-            _transferService.PromoteEmployeeToManager(_testEmployeeId, _testProjectId).Wait();
-
-            _transferService.DemoteManagerToEmployee(_testProjectId, "reason").Wait();
-
-            Project project = _fakeProjectRepository.Find(new ProjectByIdSpecification(_testProjectId)).Result;
-            Employee employee = _fakeEmployeeRepository.Find(new EmployeeByIdSpecification(_testProjectId)).Result;
-            Assert.Null(project.Manager);
-            Assert.Contains(employee, project.Employees);
-
-            Assert.Empty(employee.OnTheseProjectsIsManager);
-            Assert.Contains(project, employee.OnTheseProjectsIsEmployee);
-        }
-
-        [Fact]
-        public void FireManager_ProjectHasNoManager_ShouldThrowDomainExceptionWithSpecifiedMessage()
-        {
-            ResetServiceAndRepositories();
-            _transferService.AddEmployeeToProject(_testEmployeeId, _testProjectId).Wait();
-
-            string message = "Project has no manager. You have to promote one of the employees to manager.";
-
-            var ex = Assert.Throws<AggregateException>(() 
-                => _transferService.FireManager(_testProjectId, "reason").Wait());
-            Assert.NotNull(ex.InnerException);
-            Assert.Equal(typeof(DomainException), ex.InnerException.GetType());
-            Assert.Equal(message, ex.InnerException.Message);
-        }
-
-        [Fact]
-        public void FireManager_ManagerShouldBeNullAndAllCollectionsShouldBeEmpty()
-        {
-            ResetServiceAndRepositories();
-            _transferService.AddEmployeeToProject(_testEmployeeId, _testProjectId).Wait();
-            _transferService.PromoteEmployeeToManager(_testEmployeeId, _testProjectId).Wait();
-
-            _transferService.FireManager(_testProjectId, "reason").Wait();
-
-            Project project = _fakeProjectRepository.Find(new ProjectByIdSpecification(_testProjectId)).Result;
-            Employee employee = _fakeEmployeeRepository.Find(new EmployeeByIdSpecification(_testProjectId)).Result;
-            Assert.Null(project.Manager);
-            Assert.Empty(project.Employees);
-
-            Assert.Empty(employee.OnTheseProjectsIsEmployee);
-            Assert.Empty(employee.OnTheseProjectsIsManager);
-        }
-
         [Fact]
         public void TransferEmployeeToAnotherProject_CanNotTransferManager_ShouldThrowDomainExceptionWithSpecifiedMessage()
         {
-            ResetServiceAndRepositories();
-            _transferService.AddEmployeeToProject(_testEmployeeId, _testProjectId).Wait();
-            _transferService.PromoteEmployeeToManager(_testEmployeeId, _testProjectId).Wait();
+            ResetTransferService();
+            Project project = GetClearProjectWithId(_testProjectId);
+            Employee employee = GetClearEmployeeWithId(_testEmployeeId);
+            project.AddEmployee(employee);
+            project.PromoteEmployeeToManager(employee);
             int projectId = 2;
-            _fakeProjectRepository.AddAsync(GetClearProjectWithId(projectId)).Wait();
+            Project futureProject = GetClearProjectWithId(projectId);
             string message = $"You can not transfer this employee (id: {_testEmployeeId}) from current project" +
                 $" (id: {_testProjectId}) because he is manager of this project";
 
-            var ex = Assert.Throws<AggregateException>(()
-                => _transferService.TransferEmployeeToAnotherProject(_testEmployeeId, _testProjectId, projectId)
-                .Wait());
-            Assert.NotNull(ex.InnerException);
-            Assert.Equal(typeof(DomainException), ex.InnerException.GetType());
-            Assert.Equal(message, ex.InnerException.Message);
+            var ex = Assert.Throws<DomainException>(()
+                => _transferService.TransferEmployeeToAnotherProject(employee, project, futureProject));
+            Assert.Equal(message, ex.Message);
         }
 
         [Fact]
         public void TransferEmployeeToAnotherProject_EmployeeWorksOnBothProjects_ShouldThrowDomainExceptionWithSpecifiedMessage()
         {
-            ResetServiceAndRepositories();
-            _transferService.AddEmployeeToProject(_testEmployeeId, _testProjectId).Wait();
+            ResetTransferService();
+            Project project = GetClearProjectWithId(_testProjectId);
+            Employee employee = GetClearEmployeeWithId(_testEmployeeId);
+            project.AddEmployee(employee);
             int projectId = 2;
-            _fakeProjectRepository.AddAsync(GetClearProjectWithId(projectId)).Wait();
-            _transferService.AddEmployeeToProject(_testEmployeeId, projectId).Wait();
+            Project futureProject = GetClearProjectWithId(projectId);
+            futureProject.AddEmployee(employee);
             string message = $"You can not transfer this employee (id: {_testEmployeeId}) from current project" +
                 $" (id: {_testProjectId}) because he is already works on project you want to transfer (id: {projectId})";
 
-            var ex = Assert.Throws<AggregateException>(()
-                => _transferService.TransferEmployeeToAnotherProject(_testEmployeeId, _testProjectId, projectId)
-                .Wait());
-            Assert.NotNull(ex.InnerException);
-            Assert.Equal(typeof(DomainException), ex.InnerException.GetType());
-            Assert.Equal(message, ex.InnerException.Message);
+            var ex = Assert.Throws<DomainException>(()
+                => _transferService.TransferEmployeeToAnotherProject(employee, project, futureProject));
+            Assert.Equal(message, ex.Message);
         }
 
         [Fact]
         public void TransferEmployeeToAnotherProject_EmployeeWorksOnBothProjectsAndOnFutureProjectHeIsAManager_ShouldThrowDomainExceptionWithSpecifiedMessage()
         {
-            ResetServiceAndRepositories();
-            _transferService.AddEmployeeToProject(_testEmployeeId, _testProjectId).Wait();
+            ResetTransferService();
+            Project project = GetClearProjectWithId(_testProjectId);
+            Employee employee = GetClearEmployeeWithId(_testEmployeeId);
+            project.AddEmployee(employee);
             int projectId = 2;
-            _fakeProjectRepository.AddAsync(GetClearProjectWithId(projectId)).Wait();
-            _transferService.AddEmployeeToProject(_testEmployeeId, projectId).Wait();
-            _transferService.PromoteEmployeeToManager(_testEmployeeId, projectId).Wait();
+            Project futureProject = GetClearProjectWithId(projectId);
+            futureProject.AddEmployee(employee);
+            futureProject.PromoteEmployeeToManager(employee);
             string message = $"You can not transfer this employee (id: {_testEmployeeId}) from current project" +
                 $" (id: {_testProjectId}) because he is already works on project you want to transfer (id: {projectId})";
 
-            var ex = Assert.Throws<AggregateException>(()
-                => _transferService.TransferEmployeeToAnotherProject(_testEmployeeId, _testProjectId, projectId)
-                .Wait());
-            Assert.NotNull(ex.InnerException);
-            Assert.Equal(typeof(DomainException), ex.InnerException.GetType());
-            Assert.Equal(message, ex.InnerException.Message);
+            var ex = Assert.Throws<DomainException>(()
+                => _transferService.TransferEmployeeToAnotherProject(employee, project, futureProject));
+            Assert.Equal(message, ex.Message);
         }
 
         [Fact]
         public void TransferEmployeeToAnotherProject_NoSuchEmployeeOnCurrentProject_ShouldThrowDomainExceptionWithSpecifiedMessage()
         {
-            ResetServiceAndRepositories();
+            ResetTransferService();
             int projectId = 2;
-            _fakeProjectRepository.AddAsync(GetClearProjectWithId(projectId)).Wait();
+            Project project = GetClearProjectWithId(_testProjectId);
+            Employee employee = GetClearEmployeeWithId(_testEmployeeId);
+            Project futureProject = GetClearProjectWithId(projectId);
             string message = $"You can not transfer this employee (id: {_testEmployeeId}) from current project" +
                 $" (id: {_testProjectId}) because he is not working on it";
 
-            var ex = Assert.Throws<AggregateException>(()
-                => _transferService.TransferEmployeeToAnotherProject(_testEmployeeId, _testProjectId, projectId)
-                .Wait());
-            Assert.NotNull(ex.InnerException);
-            Assert.Equal(typeof(DomainException), ex.InnerException.GetType());
-            Assert.Equal(message, ex.InnerException.Message);
+            var ex = Assert.Throws<DomainException>(()
+                => _transferService.TransferEmployeeToAnotherProject(employee, project, futureProject));
+            Assert.Equal(message, ex.Message);
         }
 
         [Fact]
         public void TransferEmployeeToAnotherProject_FirstProjectShouldNotKnowAboutTransferredEmployeeButTheSecondShould()
         {
-            ResetServiceAndRepositories();
+            ResetTransferService();
             int projectId = 2;
-            _fakeProjectRepository.AddAsync(GetClearProjectWithId(projectId)).Wait();
-            _transferService.AddEmployeeToProject(_testEmployeeId, _testProjectId).Wait();
+            Project project = GetClearProjectWithId(_testProjectId);
+            Employee employee = GetClearEmployeeWithId(_testEmployeeId);
+            project.AddEmployee(employee);
+            Project futureProject = GetClearProjectWithId(projectId);
 
-            _transferService.TransferEmployeeToAnotherProject(_testEmployeeId, _testProjectId, projectId).Wait();
+            _transferService.TransferEmployeeToAnotherProject(employee, project, futureProject);
 
-            Project firstProject = _fakeProjectRepository.Find(new ProjectByIdSpecification(_testProjectId)).Result;
-            Project secondProject = _fakeProjectRepository.Find(new ProjectByIdSpecification(projectId)).Result;
-            Employee employee = _fakeEmployeeRepository.Find(new EmployeeByIdSpecification(_testProjectId)).Result;
-            Assert.Empty(firstProject.Employees);
-            Assert.Contains(employee, secondProject.Employees);
-            Assert.Contains(secondProject, employee.OnTheseProjectsIsEmployee);
-            Assert.DoesNotContain(firstProject, employee.OnTheseProjectsIsEmployee);
+            Assert.Empty(project.Employees);
+            Assert.Contains(employee, futureProject.Employees);
+            Assert.Contains(futureProject, employee.OnTheseProjectsIsEmployee);
+            Assert.DoesNotContain(project, employee.OnTheseProjectsIsEmployee);
         }
 
-        private void ResetServiceAndRepositories()
+        private void ResetTransferService()
         {
-            _fakeProjectRepository = new FakeGenericRepository<Project>();
-            _fakeProjectRepository.AddAsync(GetClearProjectWithId(_testProjectId)).Wait();
-            _fakeEmployeeRepository = new FakeGenericRepository<Employee>();
-            _fakeEmployeeRepository.AddAsync(GetClearEmployeeWithId(_testEmployeeId)).Wait();
-            _transferService = new TransferService(_fakeProjectRepository, _fakeEmployeeRepository);
+            _transferService = new TransferService();
         }
 
         private Project GetClearProjectWithId(int id)

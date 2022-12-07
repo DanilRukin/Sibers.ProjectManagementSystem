@@ -10,17 +10,20 @@ using System.Threading.Tasks;
 namespace Sibers.ProjectManagementSystem.Application.Commands
 {
     [DataContract]
-    public class DeleteProjectCommand : IRequest<IResult>
+    public class PromoteEmployeeToManagerCommand : IRequest<IResult>
     {
         [DataMember]
         public int ProjectId { get; private set; }
+        [DataMember]
+        public int EmployeeId { get; private set; }
 
-        public DeleteProjectCommand(int projectId)
+        public PromoteEmployeeToManagerCommand(int projectId, int employeeId)
         {
             ProjectId = projectId;
+            EmployeeId = employeeId;
         }
 
-        public DeleteProjectCommand()
+        public PromoteEmployeeToManagerCommand()
         {
         }
     }
