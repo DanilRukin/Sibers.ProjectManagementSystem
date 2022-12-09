@@ -28,6 +28,8 @@ namespace Sibers.ProjectManagementSystem.DataAccess.Configurations
                 .HasDefaultValue(EmployeeRoleOnProject.Employee)
                 .HasConversion<string>()
                 .IsRequired();
+            builder.Navigation(eop => eop.Employee).AutoInclude();
+            builder.Navigation(eop => eop.Project).AutoInclude();
         }
     }
 }

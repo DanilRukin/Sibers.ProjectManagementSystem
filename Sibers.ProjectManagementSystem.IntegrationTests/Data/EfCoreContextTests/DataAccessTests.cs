@@ -54,13 +54,13 @@ namespace Sibers.ProjectManagementSystem.IntegrationTests.Data.EfCoreContextTest
             Assert.NotNull(existingEmployee);
             Assert.NotSame(employee, existingEmployee);
 
+            context.Projects.Add(project);
             project.AddEmployee(existingEmployee);
             project.PromoteEmployeeToManager(existingEmployee);
-            context.Projects.Add(project);
             context.SaveChanges();
 
             context.Entry(project).State = EntityState.Detached;
-            Project existingProject = context.Projects.FirstOrDefault();
+            Project existingProject = context.Projects.Include("_employeesOnProject").FirstOrDefault();
             Assert.NotNull(existingProject);
             Assert.NotSame(project, existingProject);
             Assert.NotNull(existingProject.Manager);
@@ -147,7 +147,7 @@ namespace Sibers.ProjectManagementSystem.IntegrationTests.Data.EfCoreContextTest
             context.SaveChanges();
 
             context.Entry(project).State = EntityState.Detached;
-            Project newProject = context.Projects.FirstOrDefault(); // fetch new project
+            Project newProject = context.Projects.Include("_employeesOnProject").FirstOrDefault(); // fetch new project
 
             Assert.NotNull(newProject);
             Assert.NotSame(project, newProject);

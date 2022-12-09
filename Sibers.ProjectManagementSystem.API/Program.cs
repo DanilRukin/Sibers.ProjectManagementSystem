@@ -1,8 +1,10 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Sibers.ProjectManagementSystem.Application;
 using Sibers.ProjectManagementSystem.DataAccess;
 using Sibers.ProjectManagementSystem.SharedKernel;
 using Sibers.ProjectManagementSystem.SharedKernel.Interfaces;
+using System.Reflection;
 
 namespace Sibers.ProjectManagementSystem.API
 {
@@ -17,7 +19,7 @@ namespace Sibers.ProjectManagementSystem.API
             // Add services to the container.
 
             builder.Services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
-            builder.Services.AddScoped<IMediator, NoMediatr>();
+            builder.Services.AddApplicationWithMediatR();
             builder.Services.AddDbContext<ProjectManagementSystemContext>(optionsBuilder =>
             {
                 optionsBuilder.UseSqlServer(configuration.GetConnectionString("MSSQL"),
@@ -38,7 +40,7 @@ namespace Sibers.ProjectManagementSystem.API
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseAuthorization();
 
@@ -46,39 +48,6 @@ namespace Sibers.ProjectManagementSystem.API
             app.MapControllers();
 
             app.Run();
-        }
-    }
-
-    internal class NoMediatr : IMediator
-    {
-        public IAsyncEnumerable<TResponse> CreateStream<TResponse>(IStreamRequest<TResponse> request, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IAsyncEnumerable<object?> CreateStream(object request, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task Publish(object notification, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default) where TNotification : INotification
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<TResponse> Send<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<object?> Send(object request, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
         }
     }
 }

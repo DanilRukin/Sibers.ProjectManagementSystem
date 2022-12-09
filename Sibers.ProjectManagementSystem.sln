@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSys
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSystem.Infrastructure", "Sibers.ProjectManagementSystem.Infrastructure\Sibers.ProjectManagementSystem.Infrastructure.csproj", "{5C273E44-DB53-4DD5-92F4-643FCD2AB25A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sibers.ProjectManagementSystem.Application", "Sibers.ProjectManagementSystem.Application\Sibers.ProjectManagementSystem.Application.csproj", "{02BFF6EA-6F62-4BA5-9DFD-5B881C7F5005}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSystem.Application", "Sibers.ProjectManagementSystem.Application\Sibers.ProjectManagementSystem.Application.csproj", "{02BFF6EA-6F62-4BA5-9DFD-5B881C7F5005}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
