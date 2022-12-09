@@ -20,7 +20,6 @@ namespace Sibers.ProjectManagementSystem.IntegrationTests
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            string migrationAssemblySqLite = "Sibers.ProjectManagementSystem.DataAccess.SQLite";
             builder.ConfigureServices(services =>
             {
                 var descriptor = services.SingleOrDefault(

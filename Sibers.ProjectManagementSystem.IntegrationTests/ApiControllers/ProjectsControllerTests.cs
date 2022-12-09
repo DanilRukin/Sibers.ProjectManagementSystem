@@ -59,7 +59,7 @@ namespace Sibers.ProjectManagementSystem.IntegrationTests.ApiControllers
         [Fact]
         public async Task GetAll_IncludeAdditionalData_GetAllFromDatabase()
         {
-            string request = "api/projects?includeAdditionalData=true";
+            string request = "api/projects/all?includeAdditionalData=true";
 
             var result = await _client.GetFromJsonAsync<IEnumerable<ProjectDto>>(request);
 
@@ -68,6 +68,19 @@ namespace Sibers.ProjectManagementSystem.IntegrationTests.ApiControllers
             Assert.NotNull(project);
             Assert.NotEmpty(project.TasksIds);
             Assert.NotEmpty(project.EmployeesIds);
+        }
+
+        [Fact]
+        public async Task GetById_NotIncludeAdditionalData_ReturnProjectDtoWithoutEmployeesAndTasks()
+        {
+            int id = SeedData.Project1.Id;
+            string request = $"api/projects/{id}/false";
+
+            ProjectDto? result = await _client.GetFromJsonAsync<ProjectDto?>(request);
+
+            Assert.NotNull(result);
+            Assert.Empty(result.TasksIds);
+            Assert.Empty(result.EmployeesIds);
         }
     }
 }

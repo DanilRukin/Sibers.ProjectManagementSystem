@@ -4,7 +4,6 @@ using Sibers.ProjectManagementSystem.Application.Dtos;
 using Sibers.ProjectManagementSystem.Application.Services;
 using Sibers.ProjectManagementSystem.Application.Services.Interfaces;
 using Sibers.ProjectManagementSystem.DataAccess;
-using Sibers.ProjectManagementSystem.Domain;
 using Sibers.ProjectManagementSystem.Domain.Exceptions;
 using Sibers.ProjectManagementSystem.Domain.ProjectAgregate;
 using Sibers.ProjectManagementSystem.SharedKernel;
@@ -17,42 +16,45 @@ using System.Threading.Tasks;
 
 namespace Sibers.ProjectManagementSystem.Application.Queries.ProjectQueries
 {
-    public class GetAllProjectsQueryHandler : IRequestHandler<GetAllProjectsQuery, Result<IEnumerable<ProjectDto>>>
+    public class GetProjectByIdQueryHandler : IRequestHandler<GetProjectByIdQuery, Result<ProjectDto>>
     {
         private ProjectManagementSystemContext _context;
-        IMapper<Project, ProjectDto> _mapper;
+        private IMapper<Project, ProjectDto> _mapper;
 
-        public GetAllProjectsQueryHandler(ProjectManagementSystemContext context, IMapper<Project, ProjectDto> mapper)
+        public GetProjectByIdQueryHandler(ProjectManagementSystemContext context, IMapper<Project, ProjectDto> mapper)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
-        public async Task<Result<IEnumerable<ProjectDto>>> Handle(GetAllProjectsQuery request, CancellationToken cancellationToken)
+        public async Task<Result<ProjectDto>> Handle(GetProjectByIdQuery request, CancellationToken cancellationToken)
         {
             try
             {
                 if (request.IncludeAdditionalData)
                 {
-                    IEnumerable<Project> projects = await _context.Projects
-                        .IncludeTasks()
+                    Project? result = await _context.Projects
                         .IncludeEmployees()
-                        .ToListAsync(cancellationToken);
-                    if (projects.Any())
-                        return Result.Success<IEnumerable<ProjectDto>>(projects.Select(p => _mapper.Map(p)));
+                        .IncludeTasks()
+                        .FirstOrDefaultAsync(p => p.Id == request.ProjectId, cancellationToken);
+                    if (result == null)
+                        return Result<ProjectDto>.NotFound($"No such project with id: {request.ProjectId}");
+
+                    return Result.Success<ProjectDto>(_mapper.Map(result));
                 }
                 else
                 {
-                    IEnumerable<Project> projects = await _context.Projects
-                        .ToListAsync(cancellationToken);
-                    if (projects.Any())
-                        return Result.Success<IEnumerable<ProjectDto>>(projects.Select(p => _mapper.Map(p)));
+                    Project? result = await _context.Projects
+                        .FirstOrDefaultAsync(p => p.Id == request.ProjectId, cancellationToken);
+                    if (result == null)
+                        return Result<ProjectDto>.NotFound($"No such project with id: {request.ProjectId}");
+
+                    return Result.Success<ProjectDto>(_mapper.Map(result));
                 }
-                return Result<IEnumerable<ProjectDto>>.NotFound();
             }
             catch (DomainException ex)
             {
-                return DomainExceptionHandler.Handle<IEnumerable<ProjectDto>>(ex);
+                return DomainExceptionHandler.Handle<ProjectDto>(ex);
             }
             catch (Exception)
             {

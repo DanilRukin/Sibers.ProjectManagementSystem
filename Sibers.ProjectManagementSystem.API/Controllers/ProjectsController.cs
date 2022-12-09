@@ -29,7 +29,7 @@ namespace Sibers.ProjectManagementSystem.API.Controllers
             return Ok(result.Value);
         }
 
-        [HttpGet]
+        [HttpGet("all")]
         public async Task<ActionResult<IEnumerable<ProjectDto>>> GetAll([FromQuery]bool includeAdditionalData = false)
         {
             GetAllProjectsQuery query = new GetAllProjectsQuery(includeAdditionalData);
@@ -37,6 +37,18 @@ namespace Sibers.ProjectManagementSystem.API.Controllers
             if (result.ResultStatus == ResultStatus.NotFound)
                 return NotFound(result.Value);
             else if (result.ResultStatus == ResultStatus.Error)
+                return BadRequest(result.Errors);
+            return Ok(result.Value);
+        }
+
+        [HttpGet("{id}/{includeAdditionalData}")]
+        public async Task<ActionResult<ProjectDto>> GetById([FromRoute]int id, [FromRoute]bool includeAdditionalData)
+        {
+            GetProjectByIdQuery query = new GetProjectByIdQuery(id, includeAdditionalData);
+            Result<ProjectDto> result = await _mediator.Send(query);
+            if (result.ResultStatus == ResultStatus.NotFound)
+                return NotFound(result.Value);
+            if (result.ResultStatus == ResultStatus.Error)
                 return BadRequest(result.Errors);
             return Ok(result.Value);
         }

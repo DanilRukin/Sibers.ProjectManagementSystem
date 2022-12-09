@@ -20,6 +20,7 @@ namespace Sibers.ProjectManagementSystem.API
 
             builder.Services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
             builder.Services.AddApplicationWithMediatR();
+            builder.Services.AddApplicationMappers();
             builder.Services.AddDbContext<ProjectManagementSystemContext>(optionsBuilder =>
             {
                 optionsBuilder.UseSqlServer(configuration.GetConnectionString("MSSQL"),
