@@ -37,14 +37,14 @@ namespace Sibers.ProjectManagementSystem.DataAccess.Configurations
 
             builder.Property(p => p.EndDate).IsRequired();
 
-            builder.HasMany<EmployeeOnProject>("_employeesOnProject")  // nameof(Project._employeesOnProject) is not working
+            builder.HasMany<EmployeeOnProject>(DataAccessConstants.EmployeesOnProject)  // nameof(Project._employeesOnProject) is not working
                 .WithOne(ep => ep.Project)
                 .HasForeignKey(ep => ep.ProjectId)
                 .OnDelete(DeleteBehavior.Cascade);
-            builder.Navigation("_employeesOnProject")
+            builder.Navigation(DataAccessConstants.EmployeesOnProject)
                 .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-            builder.HasMany<Task>("_tasks")
+            builder.HasMany<Task>(DataAccessConstants.Tasks)
                 .WithOne()
                 .HasForeignKey(t => t.ProjectId)
                 .OnDelete(DeleteBehavior.Cascade);

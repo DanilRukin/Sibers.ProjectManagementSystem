@@ -29,13 +29,15 @@ namespace Sibers.ProjectManagementSystem.Application.Commands
             try
             {
                 Project? project = await _context.Projects
-                    .Include("_tasks")
-                    .FirstOrDefaultAsync(p => p.Id == request.ProjectId, cancellationToken);  // employees were auto included
+                    .IncludeEmployees()
+                    .IncludeTasks()
+                    .FirstOrDefaultAsync(p => p.Id == request.ProjectId, cancellationToken);
                 if (project == null)
                     return Result.NotFound($"No such project with id: {request.ProjectId}");
                 Employee? employee = await _context.Employees
-                    .Include("_executableTasks")
-                    .FirstOrDefaultAsync(e => e.Id == request.EmployeeId, cancellationToken);  // projects were auto included
+                    .IncludeProjects()
+                    .IncludeExecutableTasks()
+                    .FirstOrDefaultAsync(e => e.Id == request.EmployeeId, cancellationToken);
                 if (employee == null)
                     return Result.NotFound($"No such employee with id: {request.EmployeeId}");
                 var task = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == request.TaskId, cancellationToken);

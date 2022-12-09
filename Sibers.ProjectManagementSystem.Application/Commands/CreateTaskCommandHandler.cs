@@ -30,7 +30,7 @@ namespace Sibers.ProjectManagementSystem.Application.Commands
             try
             {
                 Project? project = await _context.Projects
-                    .Include("_tasks")
+                    .IncludeTasks()
                     .FirstOrDefaultAsync(p => p.Id == request.ProjectId);
                 if (project == null)
                     return Result<TaskDto>.NotFound($"No project with id: {request.ProjectId}");

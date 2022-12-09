@@ -29,7 +29,8 @@ namespace Sibers.ProjectManagementSystem.Application.Commands
             try
             {
                 Project? project = await _context.Projects
-                    .FirstOrDefaultAsync(p => p.Id == request.ProjectId, cancellationToken);  // employees were auto included
+                    .IncludeEmployees()
+                    .FirstOrDefaultAsync(p => p.Id == request.ProjectId, cancellationToken); 
                 if (project == null)
                     return Result.NotFound($"No such project with id: {request.ProjectId}");
                 project.DemoteManagerToEmployee(request.Reason);

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Sibers.ProjectManagementSystem.DataAccess;
 using Sibers.ProjectManagementSystem.Domain;
 using Sibers.ProjectManagementSystem.Domain.EmployeeAgregate;
 using Sibers.ProjectManagementSystem.Domain.ProjectAgregate;
@@ -60,7 +61,7 @@ namespace Sibers.ProjectManagementSystem.IntegrationTests.Data.EfCoreContextTest
             context.SaveChanges();
 
             context.Entry(project).State = EntityState.Detached;
-            Project existingProject = context.Projects.Include("_employeesOnProject").FirstOrDefault();
+            Project existingProject = context.Projects.IncludeEmployees().FirstOrDefault();
             Assert.NotNull(existingProject);
             Assert.NotSame(project, existingProject);
             Assert.NotNull(existingProject.Manager);
@@ -147,7 +148,7 @@ namespace Sibers.ProjectManagementSystem.IntegrationTests.Data.EfCoreContextTest
             context.SaveChanges();
 
             context.Entry(project).State = EntityState.Detached;
-            Project newProject = context.Projects.Include("_employeesOnProject").FirstOrDefault(); // fetch new project
+            Project newProject = context.Projects.IncludeEmployees().FirstOrDefault(); // fetch new project
 
             Assert.NotNull(newProject);
             Assert.NotSame(project, newProject);
@@ -285,7 +286,7 @@ namespace Sibers.ProjectManagementSystem.IntegrationTests.Data.EfCoreContextTest
 
             context.Entry(project).State = EntityState.Detached;
             Project existingProject = context.Projects
-                .Include("_tasks")  // we need to include tasks, because in-memory database is not support cascade
+                .IncludeTasks()  // we need to include tasks, because in-memory database is not support cascade
                 .FirstOrDefault(p => p.Id == project.Id);  // more: https://learn.microsoft.com/ru-ru/ef/core/saving/cascade-delete
             Assert.NotNull(existingProject);
             Assert.NotSame(project, existingProject);
@@ -349,10 +350,10 @@ namespace Sibers.ProjectManagementSystem.IntegrationTests.Data.EfCoreContextTest
             context.Entry(contractor).State = EntityState.Detached;
             context.Entry(author).State = EntityState.Detached;
             Employee existigContractor = context.Employees
-                .Include("_executableTasks")  // context.Employees.Include(e => e.ExecutableTasks) is not supported by in-memory db
+                .IncludeExecutableTasks()  // context.Employees.Include(e => e.ExecutableTasks) is not supported by in-memory db
                 .FirstOrDefault(e => e.Id == contractor.Id);
             Employee existigAuthor = context.Employees
-                .Include("_createdTasks")  // context.Employees.Include(e => e.CreatedTasks) is not supported by in-memory db
+                .IncludeCreatedTasks()  // context.Employees.Include(e => e.CreatedTasks) is not supported by in-memory db
                 .FirstOrDefault(e => e.Id == author.Id);
 
             Assert.NotNull(existigContractor);

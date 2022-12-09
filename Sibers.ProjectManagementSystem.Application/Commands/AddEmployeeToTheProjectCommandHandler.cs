@@ -29,11 +29,12 @@ namespace Sibers.ProjectManagementSystem.Application.Commands
             try
             {
                 Project? project = await _context.Projects
-                    .FirstOrDefaultAsync(p => p.Id == request.ProjectId, cancellationToken);  // employees were auto included
+                    .IncludeEmployees()
+                    .FirstOrDefaultAsync(p => p.Id == request.ProjectId, cancellationToken);
                 if (project == null)
                     return Result.NotFound($"No such project with id: {request.ProjectId}");
                 Employee? employee = await _context.Employees
-                    .FirstOrDefaultAsync(e => e.Id == request.EmployeeId, cancellationToken);  // projects were auto included
+                    .FirstOrDefaultAsync(e => e.Id == request.EmployeeId, cancellationToken); 
                 if (employee == null)
                     return Result.NotFound($"No such employee with id: {request.EmployeeId}");
                 project.AddEmployee(employee);

@@ -30,19 +30,19 @@ namespace Sibers.ProjectManagementSystem.DataAccess.Configurations
             builder.Ignore(e => e.CreatedTasks);
             builder.Ignore(e => e.ExecutableTasks);
 
-            builder.HasMany<EmployeeOnProject>("_employeeOnProjects") // nameof(Employee._employeeOnProjects) is not working
+            builder.HasMany<EmployeeOnProject>(DataAccessConstants.EmployeeOnProjects) // nameof(Employee._employeeOnProjects) is not working
                 .WithOne(ep => ep.Employee)
                 .HasForeignKey(ep => ep.EmployeeId)
                 .OnDelete(DeleteBehavior.Cascade);
-            builder.Navigation("_employeeOnProjects")
+            builder.Navigation(DataAccessConstants.EmployeeOnProjects)
                 .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-            builder.HasMany<Task>("_createdTasks")
+            builder.HasMany<Task>(DataAccessConstants.CreatedTasks)
                 .WithOne()
                 .HasForeignKey(t => t.AuthorEmployeeId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasMany<Task>("_executableTasks")
+            builder.HasMany<Task>(DataAccessConstants.ExecutableTasks)
                 .WithOne()
                 .HasForeignKey(t => t.ContractorEmployeeId)
                 .OnDelete(DeleteBehavior.Restrict);

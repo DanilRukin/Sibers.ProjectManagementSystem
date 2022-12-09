@@ -32,7 +32,8 @@ namespace Sibers.ProjectManagementSystem.Application.Queries.ProjectQueries
                 if (request.IncludeAdditionalData)
                 {
                     IEnumerable<Project> projects = await _context.Projects
-                        .Include("_tasks").Include("_employeesOnProject")
+                        .IncludeTasks()
+                        .IncludeEmployees()
                         .ToListAsync(cancellationToken);
                     if (projects.Any())
                         return Result.Success<IEnumerable<ProjectDto>>(projects.Select(p => new ProjectDto

@@ -38,12 +38,12 @@ namespace Sibers.ProjectManagementSystem.DataAccess.Configurations
 
             builder.Property(t => t.AuthorEmployeeId).IsRequired();
             builder.HasOne<Employee>()
-                .WithMany("_createdTasks")
+                .WithMany(DataAccessConstants.CreatedTasks)
                 .HasForeignKey(t => t.AuthorEmployeeId)
                 .OnDelete(DeleteBehavior.Cascade);
             builder.Property(t => t.ContractorEmployeeId).IsRequired(false);
             builder.HasOne<Employee>()
-                .WithMany("_executableTasks")
+                .WithMany(DataAccessConstants.ExecutableTasks)
                 .HasForeignKey(t => t.ContractorEmployeeId)
                 .OnDelete(DeleteBehavior.Restrict);
         }

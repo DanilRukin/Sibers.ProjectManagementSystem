@@ -67,6 +67,7 @@ namespace Sibers.ProjectManagementSystem.IntegrationTests.ApiControllers
             ProjectDto project = result.FirstOrDefault(p => p.Id == SeedData.Project1.Id);
             Assert.NotNull(project);
             Assert.NotEmpty(project.TasksIds);
+            Assert.NotEmpty(project.EmployeesIds);
         }
     }
 }

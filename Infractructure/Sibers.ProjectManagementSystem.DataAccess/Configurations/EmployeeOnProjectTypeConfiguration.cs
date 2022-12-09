@@ -16,11 +16,11 @@ namespace Sibers.ProjectManagementSystem.DataAccess.Configurations
         {
             builder.HasKey(ep => new { ep.ProjectId, ep.EmployeeId });
             builder.HasOne(e => e.Project)
-                .WithMany("_employeesOnProject")
+                .WithMany(DataAccessConstants.EmployeesOnProject)
                 .HasForeignKey(ep => ep.ProjectId)
                 .OnDelete(DeleteBehavior.Cascade);
             builder.HasOne(ep => ep.Employee)
-                .WithMany("_employeeOnProjects")
+                .WithMany(DataAccessConstants.EmployeeOnProjects)
                 .HasForeignKey(ep => ep.EmployeeId)
                 .OnDelete(DeleteBehavior.Cascade);
             builder.Property(ep => ep.Role)

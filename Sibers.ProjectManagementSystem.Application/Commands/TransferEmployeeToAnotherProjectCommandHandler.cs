@@ -30,15 +30,18 @@ namespace Sibers.ProjectManagementSystem.Application.Commands
             try
             {
                 Project? currentProject = await _context.Projects
-                    .FirstOrDefaultAsync(p => p.Id == request.FromProjectId, cancellationToken);  // employees were auto included
+                    .IncludeEmployees()
+                    .FirstOrDefaultAsync(p => p.Id == request.FromProjectId, cancellationToken);
                 if (currentProject == null)
                     return Result.NotFound($"No such project with id: {request.FromProjectId}");
                 Project? futureProject = await _context.Projects
-                    .FirstOrDefaultAsync(p => p.Id == request.ToProjectId, cancellationToken);  // employees were auto included
+                    .IncludeEmployees()
+                    .FirstOrDefaultAsync(p => p.Id == request.ToProjectId, cancellationToken);
                 if (futureProject == null)
                     return Result.NotFound($"No such project with id: {request.ToProjectId}");
                 Employee? employee = await _context.Employees
-                    .FirstOrDefaultAsync(e => e.Id == request.EmployeeId, cancellationToken);  // projects were auto included
+                    .IncludeProjects()
+                    .FirstOrDefaultAsync(e => e.Id == request.EmployeeId, cancellationToken);
                 if (employee == null)
                     return Result.NotFound($"No such employee with id: {request.EmployeeId}");
 
