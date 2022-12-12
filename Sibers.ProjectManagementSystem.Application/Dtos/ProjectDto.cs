@@ -17,5 +17,6 @@ namespace Sibers.ProjectManagementSystem.Application.Dtos
         public string NameOfTheContractorCompany { get; set; } = string.Empty;
         public List<Guid> TasksIds { get; set; }
         public List<int> EmployeesIds { get; set; }
+        public int ManagerId { get; set; }
     }
 }

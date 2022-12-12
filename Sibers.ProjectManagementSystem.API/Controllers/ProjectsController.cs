@@ -1,10 +1,13 @@
-﻿using MediatR;
+﻿using Azure;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Sibers.ProjectManagementSystem.API.Services;
 using Sibers.ProjectManagementSystem.Application.Commands;
 using Sibers.ProjectManagementSystem.Application.Dtos;
 using Sibers.ProjectManagementSystem.Application.Queries.ProjectQueries;
 using Sibers.ProjectManagementSystem.SharedKernel;
+using System.Net;
 
 namespace Sibers.ProjectManagementSystem.API.Controllers
 {
@@ -20,37 +23,149 @@ namespace Sibers.ProjectManagementSystem.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ProjectDto>> Create([FromBody]ProjectDto dto)
+        public async Task<ActionResult<ProjectDto>> Create([FromBody] ProjectDto dto)
         {
             CreateProjectCommand createProjectCommand = new CreateProjectCommand(dto);
             Result<ProjectDto> result = await _mediator.Send(createProjectCommand);
-            if (result.ResultStatus == ResultStatus.Error)
-                return BadRequest(result.Errors);
-            return Ok(result.Value);
+            if (result.IsSuccess)
+                return Ok(result.Value);
+            else
+                return ResultErrorsHandler.Handle(result);
         }
 
         [HttpGet("all")]
-        public async Task<ActionResult<IEnumerable<ProjectDto>>> GetAll([FromQuery]bool includeAdditionalData = false)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IEnumerable<ProjectDto>>> GetAll([FromQuery] bool includeAdditionalData = false)
         {
             GetAllProjectsQuery query = new GetAllProjectsQuery(includeAdditionalData);
             Result<IEnumerable<ProjectDto>> result = await _mediator.Send(query);
-            if (result.ResultStatus == ResultStatus.NotFound)
-                return NotFound(result.Value);
-            else if (result.ResultStatus == ResultStatus.Error)
-                return BadRequest(result.Errors);
-            return Ok(result.Value);
+            if (result.IsSuccess)
+                return Ok(result.Value);
+            else
+                return ResultErrorsHandler.Handle(result);
         }
 
         [HttpGet("{id}/{includeAdditionalData}")]
-        public async Task<ActionResult<ProjectDto>> GetById([FromRoute]int id, [FromRoute]bool includeAdditionalData)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ProjectDto>> GetById([FromRoute] int id, [FromRoute] bool includeAdditionalData)
         {
             GetProjectByIdQuery query = new GetProjectByIdQuery(id, includeAdditionalData);
             Result<ProjectDto> result = await _mediator.Send(query);
-            if (result.ResultStatus == ResultStatus.NotFound)
-                return NotFound(result.Value);
-            if (result.ResultStatus == ResultStatus.Error)
-                return BadRequest(result.Errors);
-            return Ok(result.Value);
+            if (result.IsSuccess)
+                return Ok(result.Value);
+            else
+                return ResultErrorsHandler.Handle(result);
+        }
+
+        [HttpPut("addemployee/{projectId}/{employeeId}")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> AddEmployee([FromRoute]int projectId, [FromRoute]int employeeId)
+        {
+            AddEmployeeToTheProjectCommand request = new AddEmployeeToTheProjectCommand(projectId, employeeId);
+            var response = await _mediator.Send(request);
+            if (response.IsSuccess)
+                return Ok();
+            else
+                return ResultErrorsHandler.Handle(response);
+        }
+
+        [HttpPut("removeemployee/{projectId}/{employeeId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> RemoveEmployee(int projectId, int employeeId)
+        {
+            RemoveEmployeeFromTheProjectCommand request = new(projectId, employeeId);
+            var response = await _mediator.Send(request);
+            if (response.IsSuccess)
+                return Ok();
+            else
+                return ResultErrorsHandler.Handle(response);
+        }
+
+        [HttpPut("firemanager/{projectId}/{reason}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> FireManager(int projectId, string reason)
+        {
+            FireManagerCommand request = new(projectId, reason);
+            var response = await _mediator.Send(request);
+            if (response.IsSuccess)
+                return Ok();
+            else
+                return ResultErrorsHandler.Handle(response);
+        }
+
+        [HttpPut("demotemanager/{projectId}/{reason}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> DemoteManagerToEmployee(int projectId, string reason)
+        {
+            DemoteManagerToTheEmployeeCommand request = new(projectId, reason);
+            var response = await _mediator.Send(request);
+            if (response.IsSuccess)
+                return Ok();
+            else
+                return ResultErrorsHandler.Handle(response);
+        }
+
+        [HttpPut("promoteemployee/{projectId}/{employeeId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> PromoteEmployeeToTheManager(int projectId, int employeeId)
+        {
+            PromoteEmployeeToManagerCommand request = new(projectId, employeeId);
+            var response = await _mediator.Send(request);
+            if (response.IsSuccess)
+                return Ok();
+            else
+                return ResultErrorsHandler.Handle(response);
+        }
+
+        [HttpPut("transferemployee/{currentProjectId}/{futureProjectId}/{employeeId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> TransferEmployee(int currentProjectId, int futureProjectId, int employeeId)
+        {
+            TransferEmployeeToAnotherProjectCommand request = new(currentProjectId, futureProjectId, employeeId);
+            var response = await _mediator.Send(request);
+            if (response.IsSuccess)
+                return Ok();
+            else
+                return ResultErrorsHandler.Handle(response);
+        }
+
+        [HttpDelete("{projectId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> Delete(int projectId)
+        {
+            DeleteProjectCommand request = new(projectId);
+            var response = await _mediator.Send(request);
+            if (response.IsSuccess)
+                return Ok();
+            else
+                return ResultErrorsHandler.Handle(response);
         }
     }
 }

@@ -34,6 +34,11 @@ namespace Sibers.ProjectManagementSystem.Application.Services.Mappers
                 result.EmployeesIds = employees.Select(e => e.Id).ToList();
             else
                 result.EmployeesIds = new List<int>();
+            Employee? manager = source.Manager;
+            if (manager != null)
+                result.ManagerId = manager.Id;
+            else
+                result.ManagerId = 0;
             return result;
         }
     }
