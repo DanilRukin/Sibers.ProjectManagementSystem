@@ -18,6 +18,7 @@ namespace Sibers.ProjectManagementSystem.Application.Services.Mappers
                 throw new ArgumentNullException(nameof(source));
             TaskDto result = new TaskDto
             {
+                Id = source.Id,
                 ProjectId = source.ProjectId,
                 AuthorEmployeeId = source.AuthorEmployeeId,
                 ContractorEmployeeId = source.ContractorEmployeeId,

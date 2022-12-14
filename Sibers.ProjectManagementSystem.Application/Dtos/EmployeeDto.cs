@@ -15,5 +15,6 @@ namespace Sibers.ProjectManagementSystem.Application.Dtos
         public List<Guid> ExecutableTasksIds { get; set; }
         public List<Guid> CreatedTasksIds { get; set; }
         public int Id { get; set; }
+        public List<int> ProjectsIds { get; set; }
     }
 }

@@ -33,6 +33,11 @@ namespace Sibers.ProjectManagementSystem.Application.Services.Mappers
                 result.ExecutableTasksIds = executableTasks.Select(t => t.Id).ToList();
             else
                 result.ExecutableTasksIds = new List<Guid>();
+            var projects = source.Projects?.ToArray();
+            if (projects != null)
+                result.ProjectsIds = projects.Select(p => p.Id).ToList();
+            else
+                result.ProjectsIds = new List<int>();
             return result;
         }
     }

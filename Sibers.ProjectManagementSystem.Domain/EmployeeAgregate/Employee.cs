@@ -116,11 +116,11 @@ namespace Sibers.ProjectManagementSystem.Domain.EmployeeAgregate
             Email = new Email(email);
         }
 
-        public Task CreateTask(Project project, string name, Priority priority = null)
+        public Task CreateTask(Project project, string name, Priority priority = null, string description = "")
         {
             if (project == null)
                 throw new ArgumentNullException(nameof(project));
-            Task result = new Task(Guid.NewGuid(), name, project.Id, Id, priority);
+            Task result = new Task(Guid.NewGuid(), name, description, project.Id, Id, priority);
             _createdTasks ??= new List<TaskAgregate.Task>();
             if (!_createdTasks.Contains(result))
             {

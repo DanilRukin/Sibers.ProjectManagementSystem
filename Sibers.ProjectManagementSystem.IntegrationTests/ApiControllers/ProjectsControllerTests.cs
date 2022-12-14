@@ -16,9 +16,11 @@ namespace Sibers.ProjectManagementSystem.IntegrationTests.ApiControllers
     public class ProjectsControllerTests : IClassFixture<CustomWebApplicationFactory<WebMarker>>
     {
         private HttpClient _client;
+        private CustomWebApplicationFactory<WebMarker> _factory;
         private static readonly string _api = "api/projects";
         public ProjectsControllerTests(CustomWebApplicationFactory<WebMarker> factory)
         {
+            _factory = factory;
             _client = factory.CreateClient();
         }
 
@@ -111,6 +113,7 @@ namespace Sibers.ProjectManagementSystem.IntegrationTests.ApiControllers
         [Fact]
         public async Task AddEmployee_EmployeeIsAlreadyWorksOnAProject_ReturnBadRequestResultWithMessage()
         {
+            _factory.ResetDatabase();
             int projectId = SeedData.Project1.Id;
             int employeeId = SeedData.Employee1_WorksOnProject1.Id;
             string message = $"Such employee (id: {employeeId}) is already works on this project";
@@ -190,6 +193,7 @@ namespace Sibers.ProjectManagementSystem.IntegrationTests.ApiControllers
         [Fact]
         public async Task PromoteEmployee_EmployeeWasPromoted()
         {
+            _factory.ResetDatabase();
             int projectId = SeedData.Project1.Id;
             int employeeId = SeedData.Employee1_WorksOnProject1.Id;           
             Assert.Null(SeedData.Project1.Manager);
@@ -231,6 +235,7 @@ namespace Sibers.ProjectManagementSystem.IntegrationTests.ApiControllers
         [Fact]
         public async Task DemoteManager_ReturnsOkStatusCodeAndManagerDemoted()
         {
+            _factory.ResetDatabase();
             int projectId = SeedData.Project1.Id;
             int employeeId = SeedData.Employee1_WorksOnProject1.Id;
             Assert.Null(SeedData.Project1.Manager);
@@ -260,6 +265,7 @@ namespace Sibers.ProjectManagementSystem.IntegrationTests.ApiControllers
         [Fact]
         public async Task FireManager_NoManager_ReturnsBadRequestWithMessage()
         {
+            _factory.ResetDatabase();
             int projectId = SeedData.Project1.Id;
             Assert.Null(SeedData.Project1.Manager);
             string message = "Project has no manager. You have to promote one of the employees to manager.";
@@ -279,6 +285,7 @@ namespace Sibers.ProjectManagementSystem.IntegrationTests.ApiControllers
         [Fact]
         public async Task FireManager_ManagerFired_ReturnOkStatusCode()
         {
+            _factory.ResetDatabase();
             int projectId = SeedData.Project1.Id;
             int employeeId = SeedData.Employee1_WorksOnProject1.Id;
             Assert.Null(SeedData.Project1.Manager);

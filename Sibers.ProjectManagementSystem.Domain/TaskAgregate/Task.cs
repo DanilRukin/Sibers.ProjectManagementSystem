@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Sibers.ProjectManagementSystem.Domain.TaskAgregate
 {
@@ -23,10 +24,11 @@ namespace Sibers.ProjectManagementSystem.Domain.TaskAgregate
 
         protected Task() { }
 
-        internal Task(Guid id, string name, int projectId, int authorEmployeeId, Priority priority = null, int? contractorEmployeeId = null)
+        internal Task(Guid id, string name, string description, int projectId, int authorEmployeeId, Priority priority = null, int? contractorEmployeeId = null)
         {
             Id = id;
             ChangeName(name);
+            ChangeDescription(description);
             ProjectId = projectId;
             AuthorEmployeeId = authorEmployeeId;
             if (priority == null)
@@ -57,6 +59,13 @@ namespace Sibers.ProjectManagementSystem.Domain.TaskAgregate
             if (string.IsNullOrWhiteSpace(name))
                 throw new DomainException("Task's name can not be null or empty");
             Name = name;
+        }
+
+        public void ChangeDescription(string description)
+        {
+            if (description == null)
+                throw new DomainException("Task's description can not be null");
+            Description = description;
         }
 
         public void Start()
@@ -93,6 +102,7 @@ namespace Sibers.ProjectManagementSystem.Domain.TaskAgregate
         {
             return new Task(Id,
                 (string)Name.Clone(),
+                (string)Description.Clone(),
                 ProjectId,
                 AuthorEmployeeId,
                 new Priority(Priority.Value),

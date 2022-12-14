@@ -54,5 +54,24 @@ namespace Sibers.ProjectManagementSystem.IntegrationTests
                 }
             });
         }
+
+        public void ResetDatabase()
+        {
+            using (var scope = Services.CreateScope())
+            {
+                IServiceProvider scopedServices = scope.ServiceProvider;
+                var context = scopedServices.GetRequiredService<ProjectManagementSystemContext>();
+                var logger = scopedServices.GetRequiredService<ILogger<CustomWebApplicationFactory<TStartup>>>();
+                try
+                {
+                    SeedData.ResetDatabase(context);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "An error occurred seeding the " +
+                            "database with test data. Error: {exceptionMessage}", ex.Message);
+                }
+            }
+        }
     }
 }

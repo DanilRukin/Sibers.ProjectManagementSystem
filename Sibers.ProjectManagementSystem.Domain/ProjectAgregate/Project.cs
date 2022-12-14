@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Task = Sibers.ProjectManagementSystem.Domain.TaskAgregate.Task;
+using TaskStatus = Sibers.ProjectManagementSystem.Domain.TaskAgregate.TaskStatus;
 
 namespace Sibers.ProjectManagementSystem.Domain.ProjectAgregate
 {
@@ -262,21 +263,24 @@ namespace Sibers.ProjectManagementSystem.Domain.ProjectAgregate
         {
             ThrowIfNotValidTask(task);
             _tasks.First(t => t.Id == task.Id).Start();
-            task.Start();
+            if (task.TaskStatus != TaskStatus.InProgress)
+                task.Start();
         }
 
         internal void SuspendTask(Task task)
         {
             ThrowIfNotValidTask(task);
             _tasks.First(t => t.Id == task.Id).Suspend();
-            task.Suspend();
+            if (task.TaskStatus != TaskStatus.ToDo)
+                task.Suspend();
         }
 
         internal void CompleteTask(Task task)
         {
             ThrowIfNotValidTask(task);
             _tasks.First(t => t.Id == task.Id).Complete();
-            task.Complete();
+            if (task.TaskStatus != TaskStatus.Completed)
+                task.Complete();
         }
 
         private void ThrowIfNotValidTask(Task task)

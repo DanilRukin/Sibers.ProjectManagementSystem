@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Sibers.ProjectManagementSystem.Application.Dtos;
 using Sibers.ProjectManagementSystem.Application.Services;
+using Sibers.ProjectManagementSystem.Application.Services.Interfaces;
 using Sibers.ProjectManagementSystem.DataAccess;
 using Sibers.ProjectManagementSystem.Domain.EmployeeAgregate;
 using Sibers.ProjectManagementSystem.Domain.Exceptions;
@@ -13,16 +14,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Work = Sibers.ProjectManagementSystem.Domain.TaskAgregate.Task;
 
 namespace Sibers.ProjectManagementSystem.Application.Commands
 {
     public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, Result<TaskDto>>
     {
         private ProjectManagementSystemContext _context;
+        private IMapper<Work, TaskDto> _mapper;
 
-        public CreateTaskCommandHandler(ProjectManagementSystemContext context)
+        public CreateTaskCommandHandler(ProjectManagementSystemContext context, IMapper<Work, TaskDto> mapper)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         public async Task<Result<TaskDto>> Handle(CreateTaskCommand request, CancellationToken cancellationToken)
@@ -42,10 +46,8 @@ namespace Sibers.ProjectManagementSystem.Application.Commands
                 _context.Projects.Update(project);
                 _context.Employees.Update(author);
                 //_context.Tasks.Add(task);  // ??
-                await _context.SaveEntitiesAsync(cancellationToken);
-                request.TaskDto.ProjectId = task.ProjectId;
-                request.TaskDto.AuthorEmployeeId = task.AuthorEmployeeId;               
-                return Result<TaskDto>.Success(request.TaskDto);
+                await _context.SaveEntitiesAsync(cancellationToken);             
+                return Result<TaskDto>.Success(_mapper.Map(task));
             }
             catch (DomainException ex)
             {

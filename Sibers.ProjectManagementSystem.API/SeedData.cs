@@ -10,6 +10,7 @@ namespace Sibers.ProjectManagementSystem.API
     public static class SeedData
     {
         private static bool _empty = false;
+        private static bool _created = false;
         public static Project Project1 { get; private set; }
         public static Project Project2 { get; private set; }
 
@@ -26,6 +27,7 @@ namespace Sibers.ProjectManagementSystem.API
             context.Database.Migrate();
             ClearDatabase(context);
             FillDatabase(context);
+            _created = true;
         }
 
         public static void InitializeDatabase(ProjectManagementSystemContext context)
@@ -33,6 +35,7 @@ namespace Sibers.ProjectManagementSystem.API
             context.Database.EnsureCreated();
             ClearDatabase(context);
             FillDatabase(context);
+            _created = true;
         }
 
         private static void FillDatabase(ProjectManagementSystemContext context)
@@ -103,6 +106,13 @@ namespace Sibers.ProjectManagementSystem.API
             _empty = true;
         }
 
-        
+        public static void ResetDatabase(ProjectManagementSystemContext context)
+        {
+            if (_created)
+            {
+                ClearDatabase(context);
+                FillDatabase(context);
+            }
+        }
     }
 }
