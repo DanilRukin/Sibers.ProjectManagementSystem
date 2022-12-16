@@ -25,7 +25,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Sibers.ProjectManagementSystem.Domain\Sibers.ProjectManagementSystem.Domain.csproj" />
     <ProjectReference Include="..\Sibers.ProjectManagementSystem.SharedKernel\Sibers.ProjectManagementSystem.SharedKernel.csproj" />
-    <ProjectReference Include="..\Sibers.ProjectManagementSystem.TestsFakes\Sibers.ProjectManagementSystem.TestsFakes.csproj" />
   </ItemGroup>
 
 </Project>

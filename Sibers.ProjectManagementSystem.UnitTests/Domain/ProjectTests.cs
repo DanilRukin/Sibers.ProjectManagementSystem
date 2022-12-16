@@ -9,7 +9,6 @@ using System.Linq;
 using System.Text;
 using Task = Sibers.ProjectManagementSystem.Domain.TaskAgregate.Task;
 using TaskStatus = Sibers.ProjectManagementSystem.Domain.TaskAgregate.TaskStatus;
-using Sibers.ProjectManagementSystem.TestsFakes.Repositories;
 using Sibers.ProjectManagementSystem.Domain.ProjectAgregate.Specifications;
 
 namespace Sibers.ProjectManagementSystem.UnitTests.Domain

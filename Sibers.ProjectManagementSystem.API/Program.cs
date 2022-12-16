@@ -28,6 +28,7 @@ namespace Sibers.ProjectManagementSystem.API
             });
 
             builder.Services.AddControllers();
+            builder.Services.AddCors();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -37,6 +38,15 @@ namespace Sibers.ProjectManagementSystem.API
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
+                if (configuration["SeedData"] == "true")
+                {
+                    using (var scope = app.Services.CreateScope())
+                    {
+                        var services = scope.ServiceProvider;
+                        var context = services.GetRequiredService<ProjectManagementSystemContext>();
+                        SeedData.ApplyMigrationAndFillDatabase(context);
+                    }
+                }
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
@@ -47,6 +57,12 @@ namespace Sibers.ProjectManagementSystem.API
 
 
             app.MapControllers();
+
+            app.UseCors(builder => builder
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .SetIsOriginAllowed(origin => true)
+            .AllowCredentials());
 
             app.Run();
         }

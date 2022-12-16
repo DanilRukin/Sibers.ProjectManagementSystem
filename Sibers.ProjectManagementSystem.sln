@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSys
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSystem.UnitTests", "Sibers.ProjectManagementSystem.UnitTests\Sibers.ProjectManagementSystem.UnitTests.csproj", "{1B6D98B3-0145-4312-A9DE-75872A457F0E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSystem.TestsFakes", "Sibers.ProjectManagementSystem.TestsFakes\Sibers.ProjectManagementSystem.TestsFakes.csproj", "{A2807528-6F9D-4740-8EFC-DD9FEB79D83A}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSystem.DataAccess", "Infractructure\Sibers.ProjectManagementSystem.DataAccess\Sibers.ProjectManagementSystem.DataAccess.csproj", "{4D5E1BD5-990B-4AAC-AB92-4502EC5FAE91}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSystem.IntegrationTests", "Sibers.ProjectManagementSystem.IntegrationTests\Sibers.ProjectManagementSystem.IntegrationTests.csproj", "{1FCA9890-C4B9-425B-9938-F49A2D9052B2}"
@@ -19,9 +17,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSys
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSystem.DataAccess.MSSQL", "Sibers.ProjectManagementSystem.DataAccess.MSSQL\Sibers.ProjectManagementSystem.DataAccess.MSSQL.csproj", "{4021E0A3-D756-4967-8A10-B28ACA1AF65F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSystem.Infrastructure", "Sibers.ProjectManagementSystem.Infrastructure\Sibers.ProjectManagementSystem.Infrastructure.csproj", "{5C273E44-DB53-4DD5-92F4-643FCD2AB25A}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSystem.Application", "Sibers.ProjectManagementSystem.Application\Sibers.ProjectManagementSystem.Application.csproj", "{02BFF6EA-6F62-4BA5-9DFD-5B881C7F5005}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sibers.ProjectManagementSystem.Presentation.Web.Blazor", "Presentation\Web\Blazor\Sibers.ProjectManagementSystem.Presentation.Web.Blazor\Sibers.ProjectManagementSystem.Presentation.Web.Blazor.csproj", "{3B926A83-34C5-4BF6-A8AE-59113EF45292}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,10 +39,6 @@ Global
 		{1B6D98B3-0145-4312-A9DE-75872A457F0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B6D98B3-0145-4312-A9DE-75872A457F0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B6D98B3-0145-4312-A9DE-75872A457F0E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A2807528-6F9D-4740-8EFC-DD9FEB79D83A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A2807528-6F9D-4740-8EFC-DD9FEB79D83A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A2807528-6F9D-4740-8EFC-DD9FEB79D83A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A2807528-6F9D-4740-8EFC-DD9FEB79D83A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4D5E1BD5-990B-4AAC-AB92-4502EC5FAE91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4D5E1BD5-990B-4AAC-AB92-4502EC5FAE91}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D5E1BD5-990B-4AAC-AB92-4502EC5FAE91}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -61,14 +55,14 @@ Global
 		{4021E0A3-D756-4967-8A10-B28ACA1AF65F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4021E0A3-D756-4967-8A10-B28ACA1AF65F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4021E0A3-D756-4967-8A10-B28ACA1AF65F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5C273E44-DB53-4DD5-92F4-643FCD2AB25A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5C273E44-DB53-4DD5-92F4-643FCD2AB25A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5C273E44-DB53-4DD5-92F4-643FCD2AB25A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5C273E44-DB53-4DD5-92F4-643FCD2AB25A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{02BFF6EA-6F62-4BA5-9DFD-5B881C7F5005}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{02BFF6EA-6F62-4BA5-9DFD-5B881C7F5005}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{02BFF6EA-6F62-4BA5-9DFD-5B881C7F5005}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{02BFF6EA-6F62-4BA5-9DFD-5B881C7F5005}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B926A83-34C5-4BF6-A8AE-59113EF45292}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B926A83-34C5-4BF6-A8AE-59113EF45292}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B926A83-34C5-4BF6-A8AE-59113EF45292}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B926A83-34C5-4BF6-A8AE-59113EF45292}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
