@@ -1,0 +1,269 @@
+﻿@using MediatR
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Dtos
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Extensions
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Projects.Commands
+
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject IMediator Mediator
+
+
+<MudDialog>
+    <DialogContent>
+        <MudContainer Style="max-height: 700px; overflow-y: scroll; width:max-content;">
+            @if (_loading)
+            {
+                <MudProgressCircular Indeterminate="true"></MudProgressCircular>
+            }
+            else
+            {
+                <EditForm Model="@project">
+                    <MudText GutterBottom="true" Typo="Typo.h5">Общая информация</MudText>
+                    <MudTextField Class="mb-3" Label="Название" @bind-Value="project.Name" Required="true" 
+                    RequiredError="Это обязательное поле!"/>
+                    <MudTextField Class="mb-3" Label="Название компании-заказчика" @bind-Value="project.NameOfTheCustomerCompany" Required="true" 
+                    RequiredError="Это обязательное поле!"/>
+                    <MudTextField Class="mb-3" Label="Название компании-исполнителя" @bind-Value="project.NameOfTheContractorCompany" Required="true" 
+                    RequiredError="Это обязательное поле!"/>
+                    <MudNumericField Class="mb-3" Label="Приоритет" @bind-Value="project.Priority" Required="true" 
+                    RequiredError="Это обязательное поле!"/>
+                    <MudGrid Class="mb-3">
+                        <MudItem xs="6">
+                            <MudDatePicker Class="mud-width-full" Label="Дата начала проекта" Editable="true" @bind-Date="_projectStartDate" 
+                            Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="Дата" 
+                            Required="true" RequiredError="Это обязательное поле!"/>
+                        </MudItem>
+                        <MudItem xs="6">
+                            <MudDatePicker Class="mud-width-full" Label="Дата окончания проекта" Editable="true" @bind-Date="_projectEndDate" 
+                            Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="Дата" 
+                            Required="true" RequiredError="Это обязательное поле!"/>
+                        </MudItem>
+                    </MudGrid>
+
+                    <MudText Typo="Typo.h5" GutterBottom="true">
+                        Руководитель
+                    </MudText>
+                    <MudGrid Class="mb-3">
+                        <MudItem xs="9">
+                            <MudTextField @bind-Value="_managerFullName" Label="ФИО руководителя" ReadOnly="true" Variant="Variant.Text" />
+                        </MudItem>
+                        <MudItem xs="3">
+                            <MudButton Color="Color.Primary" Variant="Variant.Filled" @onclick="OnManagerSelecting">
+                                Назначить
+                            </MudButton>
+                        </MudItem>
+                    </MudGrid>
+
+                    @if (_employeesOnProject == null)
+                    {
+                        <MudProgressCircular Indeterminate="true"></MudProgressCircular>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.h6" GutterBottom="true">Сотрудники на проекте</MudText>
+                        <MudButton Variant="Variant.Filled" Color="Color.Success" Class="mb-3" @onclick="OnEmplyeesSelecting">
+                            Добавить сотрудника
+                        </MudButton>
+                        <MudTable Items="_employeesOnProject" FixedHeader="true" FixedFooter="true" Hover="true" SortLabel="Sort by">
+                            <HeaderContent>
+                                <MudTh>
+                                    <MudTableSortLabel SortBy="new Func<EmployeeDto, object>(e => e.Id)">
+                                        Id
+                                    </MudTableSortLabel>
+                                </MudTh>
+                                <MudTh>
+                                    <MudTableSortLabel SortBy="new Func<EmployeeDto, object>(e => e.FirstName)">
+                                        Фамилия
+                                    </MudTableSortLabel>
+                                </MudTh>
+                                <MudTh>
+                                    <MudTableSortLabel SortBy="new Func<EmployeeDto, object>(e => e.LastName)">
+                                        Имя
+                                    </MudTableSortLabel>
+                                </MudTh>
+                                <MudTh>
+                                    <MudTableSortLabel SortBy="new Func<EmployeeDto, object>(e => e.Patronymic)">
+                                        Отчество
+                                    </MudTableSortLabel>
+                                </MudTh>
+                                <MudTh>
+                                    <MudTableSortLabel SortBy="new Func<EmployeeDto, object>(e => e.Email)">
+                                        Email
+                                    </MudTableSortLabel>
+                                </MudTh>
+                                <MudTh>
+                                    Действие
+                                </MudTh>
+                            </HeaderContent>
+                            <RowTemplate Context="emp">
+                                <MudTd DataLabel="Id">@emp.Id</MudTd>
+                                <MudTd DataLabel="FirstName">@emp.FirstName</MudTd>
+                                <MudTd DataLabel="LastName">@emp.LastName</MudTd>
+                                <MudTd DataLabel="Patronymic">@emp.Patronymic</MudTd>
+                                <MudTd DataLabel="Email">@emp.Email</MudTd>
+                                <MudTd>
+                                    <MudButton Color="Color.Error" Variant="Variant.Filled" @onclick="(() => OnEmployeeDeleting(emp.Id))">
+                                        Снять с проекта
+                                    </MudButton>                                       
+                                </MudTd>
+                            </RowTemplate>
+                            <PagerContent>
+                                <MudTablePager PageSizeOptions="new int[] { 10, 25, 50, 100 }"/>
+                            </PagerContent>
+                        </MudTable>
+                    }
+                    </EditForm>
+            }
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Отмена</MudButton>
+        <MudButton Color="Color.Success" Variant="Variant.Filled" OnClick="Submit">Создать</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+
+
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
+    private ICollection<EmployeeDto> _employeesOnProject = new List<EmployeeDto>();
+    private EmployeeDto _manager = new EmployeeDto();
+    private string _managerFullName = "";
+
+    private ProjectDto project = new ProjectDto();
+    private bool _loading = false;
+    private DateTime? _projectStartDate = DateTime.Now;
+    private DateTime? _projectEndDate = DateTime.Now;
+
+
+    private async Task OnEmplyeesSelecting()
+    {
+        DialogOptions options = new DialogOptions
+            {
+                CloseButton = true,
+                CloseOnEscapeKey = true,
+                MaxWidth = MaxWidth.Large,
+                FullWidth = true
+            };
+        DialogParameters parameters = new DialogParameters();
+        parameters.Add(nameof(SelectEmployeesDialog.Multiselection), true);
+        parameters.Add(nameof(SelectEmployeesDialog.LoadEmloyees), true);
+        var dialog = DialogService.Show<SelectEmployeesDialog>("Выбор сотрудников", parameters, options);
+        using var task = dialog.Result;
+        var result = await task;
+        if (!result.Cancelled)
+        {
+            if (result.Data is IEnumerable<EmployeeDto> employees)
+            {
+                foreach (var item in employees)
+                {
+                    _employeesOnProject.Add(item);
+                    project.EmployeesIds.Add(item.Id);
+                }
+            }
+        }
+    }
+
+    private async Task OnManagerSelecting()
+    {
+        if (_employeesOnProject == null || _employeesOnProject.Count == 0)
+        {
+            Snackbar.Add("Руководителя можно выбрать только из сотрудников проекта", Severity.Info);
+        }
+        else
+        {
+            DialogOptions options = new DialogOptions
+                {
+                    CloseButton = true,
+                    CloseOnEscapeKey = true,
+                    MaxWidth = MaxWidth.Large,
+                    FullWidth = true
+                };
+            DialogParameters parameters = new DialogParameters();
+            parameters.Add(nameof(SelectEmployeesDialog.Multiselection), false);
+            parameters.Add(nameof(SelectEmployeesDialog.EmployeesList), _employeesOnProject);
+            parameters.Add(nameof(SelectEmployeesDialog.LoadEmloyees), false);
+            var dialog = DialogService.Show<SelectEmployeesDialog>("Выбор руководителя", parameters, options);
+            using var task = dialog.Result;
+            var result = await task;
+            if (!result.Cancelled)
+            {
+                if (result.Data is EmployeeDto employee)
+                {
+                    _manager = employee;
+                    _managerFullName = employee.FirstName + employee.LastName + employee.Patronymic;
+                    project.ManagerId = employee.Id;
+                }
+            }
+        }
+    }
+
+    private void OnEmployeeDeleting(int employeeId)
+    {
+        _employeesOnProject.Remove(_employeesOnProject.First(e => e.Id == employeeId));
+        if (_manager != null && _manager.Id == employeeId)
+        {
+            _manager = null;
+            _managerFullName = "";
+            project.ManagerId = 0;
+        }
+        // this project instance is not in database yet
+        project.EmployeesIds.Remove(employeeId);
+    }
+
+    private async Task Submit()
+    {
+        try
+        {
+            project.StartDate = _projectStartDate.Value;
+            project.EndDate = _projectEndDate.Value;
+            CreateProjectCommand command = new(project);
+            var result = await Mediator.Send(command);
+            if (result.IsSuccess)
+            {
+                await AddEmployeesToProject(result.Value.Id);
+                await AddManagerToProject(result.Value.Id);
+                Snackbar.Add("Проект успешно создан", Severity.Success);
+                MudDialog.Close(DialogResult.Ok(result.Value));
+            }
+            else
+                throw new Exception(result.Errors.AsOneString());
+        }
+        catch (Exception e)
+        {
+            Snackbar.Add(e.Message, Severity.Error);
+            MudDialog.Close(DialogResult.Ok(false));
+        }
+    }
+
+    private async Task AddEmployeesToProject(int projectId)
+    {
+        if (_employeesOnProject != null && _employeesOnProject.Any())
+        {
+            AddRangeOfEmployeesCommand command = new(_employeesOnProject.Select(e => e.Id), projectId);
+            var result = await Mediator.Send(command);
+            if (!result.IsSuccess)
+                throw new Exception(result.Errors.AsOneString());
+        }
+        return;
+    }
+
+    private async Task AddManagerToProject(int projectId)
+    {
+        if (_manager == null)
+            return;
+        if (!_employeesOnProject.Contains(_manager))
+            return;
+        PromoteEmployeeToManagerCommand command = new(projectId, _manager.Id);
+        var response = await Mediator.Send(command);
+        if (!response.IsSuccess)
+            throw new Exception(response.Errors.AsOneString());
+        return;
+    }
+
+    void Cancel() => MudDialog.Cancel();
+}
+

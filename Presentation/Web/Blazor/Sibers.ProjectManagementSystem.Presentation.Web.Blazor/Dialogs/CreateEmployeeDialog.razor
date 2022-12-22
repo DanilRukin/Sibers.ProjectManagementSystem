@@ -1,0 +1,64 @@
+﻿@using MediatR
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Dtos
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Employees.Commands
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Extensions
+
+
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject IMediator Mediator
+
+<MudDialog>
+    <DialogContent>
+        <MudContainer>
+            @if (_employee == null)
+            {
+                <MudProgressCircular Indeterminate="true"></MudProgressCircular>
+            }
+            else
+            {
+                <EditForm Model="@_employee">
+                    <MudText GutterBottom="true" Typo="Typo.h5">Общая информация</MudText>
+                    <MudTextField Class="mb-3" Label="Фамилия" @bind-Value="_employee.FirstName" Required="true"
+                              RequiredError="Это обязательное поле!" />
+                    <MudTextField Class="mb-3" Label="Имя" @bind-Value="_employee.LastName" Required="true"
+                              RequiredError="Это обязательное поле!" />
+                    <MudTextField Class="mb-3" Label="Отчество" @bind-Value="_employee.Patronymic" Required="true"
+                              RequiredError="Это обязательное поле!" />
+                    <MudTextField Class="mb-3" Label="Email" @bind-Value="_employee.Email" Required="true"
+                              RequiredError="Это обязательное поле!" />
+                    <MudDivider />                   
+                </EditForm>
+            }
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Отмена</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Submit">Создать</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
+    private EmployeeDto _employee = new EmployeeDto();
+
+    async Task Submit()
+    {
+        CreateEmployeeCommand command = new CreateEmployeeCommand(_employee);
+        var result = await Mediator.Send(command);
+        if (result.IsSuccess)
+        {
+            Snackbar.Add("Сотрудник создан", Severity.Success);
+            MudDialog.Close(DialogResult.Ok<EmployeeDto>(result.Value));  
+        }
+        else
+        {
+            Snackbar.Add($"Сотрудник не был создан. Причина: {result.Errors.AsOneString()}", Severity.Error);
+            MudDialog.Close(DialogResult.Ok(false));
+        }
+    }
+    void Cancel() => MudDialog.Cancel();
+}
+

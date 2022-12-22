@@ -7,8 +7,10 @@
         {
             public static string ById(int employeeId, bool includeData = false)
                 => $"{Api}/{employeeId}/{includeData}";
-            public static string All()
-                => $"{Api}/all";
+            public static string All(bool includeAdditionalData = false)
+                => $"{Api}/all/{includeAdditionalData}";
+            public static string Range(bool includeAdditionalData = false)
+                => $"{Api}/range/{includeAdditionalData}";
         }
 
         public static class Post

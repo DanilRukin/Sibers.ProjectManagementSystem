@@ -48,6 +48,23 @@ namespace Sibers.ProjectManagementSystem.API.Controllers
                 return ResultErrorsHandler.Handle(result);
         }
 
+        [HttpGet("range/{includeAdditionalData}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IEnumerable<ProjectDto>>> GetRange(
+            [FromBody]IEnumerable<int> ids,
+            [FromRoute]bool includeAdditionalData = false)
+        {
+            GetRangeOfProjectsQuery query = new GetRangeOfProjectsQuery(ids, includeAdditionalData);
+            var response = await _mediator.Send(query);
+            if (response.IsSuccess)
+                return Ok(response.GetValue());
+            else
+                return ResultErrorsHandler.Handle(response);
+        }
+
         [HttpGet("{id}/{includeAdditionalData}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -149,6 +166,38 @@ namespace Sibers.ProjectManagementSystem.API.Controllers
             var response = await _mediator.Send(request);
             if (response.IsSuccess)
                 return Ok();
+            else
+                return ResultErrorsHandler.Handle(response);
+        }
+
+        [HttpPut("addrangeofemployees/{projectId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> AddRangeOfEmployees(
+            [FromRoute]int projectId,
+            [FromBody]IEnumerable<int> employeesIds)
+        {
+            AddRangeOfEmployeesCommand command = new(employeesIds, projectId);
+            var response = await _mediator.Send(command);
+            if (response.IsSuccess)
+                return Ok();
+            else
+                return ResultErrorsHandler.Handle(response);
+        }
+
+        [HttpPut("update")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ProjectDto>> Update([FromBody]ProjectDto project)
+        {
+            UpdateProjectsDataCommand command = new(project);
+            var response = await _mediator.Send(command);
+            if (response.IsSuccess)
+                return Ok(response.Value);
             else
                 return ResultErrorsHandler.Handle(response);
         }

@@ -1,0 +1,354 @@
+﻿@using MediatR
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Dtos
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Employees.Queries
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Projects.Commands
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Projects.Queries
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Extensions
+@using Sibers.ProjectManagementSystem.SharedKernel
+@using Sibers.ProjectManagementSystem.SharedKernel.Results
+
+
+@inject IDialogService DialogService
+@inject IMediator Mediator
+@inject ISnackbar Snackbar
+
+
+<MudDialog>
+    <DialogContent>
+        <MudContainer Style="max-height: 700px; overflow-y: scroll; width:max-content;">
+            @if (_loading)
+            {
+                <MudProgressCircular Indeterminate="true"></MudProgressCircular>
+            }
+            else
+            {
+                <EditForm Model="@ProjectToEdit">
+                    <MudText GutterBottom="true" Typo="Typo.h5">Общая информация</MudText>
+                        <MudTextField Class="mb-3" Label="Id" @bind-Value="ProjectToEdit.Id" Required="true" 
+                            RequiredError="Это обязательное поле!"/>
+                        <MudTextField Class="mb-3" Label="Name" @bind-Value="ProjectToEdit.Name" Required="true" 
+                            RequiredError="Это обязательное поле!"/>
+                        <MudTextField Class="mb-3" Label="NameOfCustomerCompany" @bind-Value="ProjectToEdit.NameOfTheCustomerCompany" Required="true" 
+                            RequiredError="Это обязательное поле!"/>
+                        <MudTextField Class="mb-3" Label="NameOfContractorCompany" @bind-Value="ProjectToEdit.NameOfTheContractorCompany" Required="true" 
+                            RequiredError="Это обязательное поле!"/>
+                        <MudNumericField Class="mb-3" Label="Priority" @bind-Value="ProjectToEdit.Priority" Required="true" 
+                            RequiredError="Это обязательное поле!"/>
+                        <MudGrid Class="mb-3">
+                            <MudItem xs="6">
+                                <MudDatePicker Class="mud-width-full" Label="Дата начала проекта" Editable="true" @bind-Date="_projectStartDate" 
+                                    Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="Дата" 
+                                    Required="true" RequiredError="Это обязательное поле!"/>
+                            </MudItem>
+                            <MudItem xs="6">
+                                <MudDatePicker Class="mud-width-full" Label="Дата окончания проекта" Editable="true" @bind-Date="_projectEndDate" 
+                                    Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="Дата" 
+                                    Required="true" RequiredError="Это обязательное поле!"/>
+                            </MudItem>
+                        </MudGrid>
+                        
+                        @if (_existingEmployees == null)
+                        {
+                            <MudProgressCircular Indeterminate="true"></MudProgressCircular>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.h5" GutterBottom="true">
+                                Руководитель
+                            </MudText>
+                            <MudGrid Class="mb-3">
+                                <MudItem xs="8">
+                                    <MudTextField @bind-Value="_managerFullName" Label="ФИО руководителя" ReadOnly="true" Variant="Variant.Text" />
+                                </MudItem>
+                                <MudItem xs="4">
+                                    <MudButton Color="Color.Info" Variant="Variant.Filled">
+                                        Изменить
+                                    </MudButton>
+                                </MudItem>
+                            </MudGrid>
+                            <MudText Typo="Typo.h6" GutterBottom="true">Сотрудники на проекте</MudText>
+                            <MudButton Variant="Variant.Filled" Color="Color.Success" Class="mb-3" @onclick="OnEmplyeesSelecting">
+                                Добавить сотрудника
+                            </MudButton>
+                            <MudTable Items="_existingEmployees" FixedHeader="true" FixedFooter="true" Hover="true" SortLabel="Sort by">
+                                <HeaderContent>
+                                    <MudTh>
+                                        <MudTableSortLabel SortBy="new Func<EmployeeDto, object>(e => e.Id)">
+                                            Id
+                                        </MudTableSortLabel>
+                                    </MudTh>
+                                    <MudTh>
+                                        <MudTableSortLabel SortBy="new Func<EmployeeDto, object>(e => e.FirstName)">
+                                            Фамилия
+                                        </MudTableSortLabel>
+                                    </MudTh>
+                                    <MudTh>
+                                        <MudTableSortLabel SortBy="new Func<EmployeeDto, object>(e => e.LastName)">
+                                            Имя
+                                        </MudTableSortLabel>
+                                    </MudTh>
+                                    <MudTh>
+                                        <MudTableSortLabel SortBy="new Func<EmployeeDto, object>(e => e.Patronymic)">
+                                            Отчество
+                                        </MudTableSortLabel>
+                                    </MudTh>
+                                    <MudTh>
+                                        <MudTableSortLabel SortBy="new Func<EmployeeDto, object>(e => e.Email)">
+                                            Email
+                                        </MudTableSortLabel>
+                                    </MudTh>
+                                    <MudTh>
+                                        Действие
+                                    </MudTh>
+                                </HeaderContent>
+                                <RowTemplate Context="emp">
+                                    <MudTd DataLabel="Id">@emp.Id</MudTd>
+                                    <MudTd DataLabel="FirstName">@emp.FirstName</MudTd>
+                                    <MudTd DataLabel="LastName">@emp.LastName</MudTd>
+                                    <MudTd DataLabel="Patronymic">@emp.Patronymic</MudTd>
+                                    <MudTd DataLabel="Email">@emp.Email</MudTd>
+                                    <MudTd>
+                                        <MudButton Color="Color.Error" Variant="Variant.Filled" @onclick="(() => OnEmployeeRemovingFromProject(emp.Id))">
+                                            Снять с проекта
+                                        </MudButton>                                       
+                                    </MudTd>
+                                </RowTemplate>
+                                <PagerContent>
+                                    <MudTablePager PageSizeOptions="new int[] { 10, 25, 50, 100 }"/>
+                                </PagerContent>
+                            </MudTable>
+                        }
+                    </EditForm>
+            }
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Отмена</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Submit">Принять</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    [CascadingParameter] 
+    MudDialogInstance MudDialog { get; set; }
+
+    private ICollection<EmployeeDto> _existingEmployees = new List<EmployeeDto>();
+    private EmployeeDto _manager = new EmployeeDto();
+    private EmployeeDto? _oldManager;
+    private string _managerFullName = "";
+    private List<int> _reallyRemovedEmployeesIds = new List<int>();
+    private List<EmployeeDto> _addedEmployees = new List<EmployeeDto>();
+
+    [Parameter]
+    public ProjectDto ProjectToEdit { get; set; } = new ProjectDto();
+
+
+    private async Task LoadProject()
+    {
+        if (ProjectToEdit == null)
+        {
+            Snackbar.Add("Can not to load project!", Severity.Info);
+            Cancel();
+        }
+        else
+        {
+            GetProjectByIdQuery query = new GetProjectByIdQuery(ProjectToEdit.Id, true);
+            var project = await Mediator.Send(query);
+            if (project == null)
+            {
+                Snackbar.Add("No such project in database.", Severity.Info);
+                Cancel();
+            }
+            else
+            {
+                ProjectToEdit = project;
+            }
+        }  
+    }
+
+    private bool _loading = false;
+    private DateTime? _projectStartDate;
+    private DateTime? _projectEndDate;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProject();
+        await LoadEmployees(ProjectToEdit.EmployeesIds);
+        SetManager();
+        _managerFullName = $"{_manager.FirstName} {_manager.LastName} {_manager.Patronymic}";
+    }
+
+    private async Task OnEmployeeRemovingFromProject(int employeeId)
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            title: $"Удаление сотрудника {employeeId}",
+            markupMessage: new MarkupString("Вы действительно хотите снять сотрудника? Действие невозможно будет отменить"),
+            yesText: "Снять",
+            cancelText: "Отмена"
+        );
+        if (result != null && result == true)
+        {
+            if (_addedEmployees.Contains(e => e.Id == employeeId))
+            {
+                _existingEmployees.Remove(_existingEmployees.First(e => e.Id == employeeId));
+                _addedEmployees.Remove(_existingEmployees.First(e => e.Id == employeeId));
+            }
+            else if (_existingEmployees.Contains(e => e.Id == employeeId))
+            {
+                _existingEmployees.Remove(_existingEmployees.First(e => e.Id == employeeId));
+                _addedEmployees.Remove(_existingEmployees.First(e => e.Id == employeeId));
+                _reallyRemovedEmployeesIds.Add(employeeId);
+            }
+        }       
+    }
+
+    private async Task OnEmplyeesSelecting()
+    {
+        DialogOptions options = new DialogOptions
+            {
+                CloseButton = true,
+                CloseOnEscapeKey = true,
+                MaxWidth = MaxWidth.Large,
+                FullWidth = true
+            };
+        DialogParameters parameters = new DialogParameters();
+        parameters.Add(nameof(SelectEmployeesDialog.Multiselection), true);
+        parameters.Add(nameof(SelectEmployeesDialog.LoadEmloyees), true);
+        parameters.Add(nameof(SelectEmployeesDialog.ExcludedEmployeesList), _existingEmployees);
+        var dialog = DialogService.Show<SelectEmployeesDialog>("Выбор сотрудников", options);
+        using var task = dialog.Result;
+        var result = await task;
+        if (result != null && !result.Cancelled)
+        {
+            if (result.Data is IEnumerable<EmployeeDto> employees)
+            {
+                foreach (var employee in employees)
+                {
+                    AddEmployeeIfNecessary(employee);
+                }
+            }
+        }
+    }
+
+    private void AddEmployeeIfNecessary(EmployeeDto employee)
+    {
+        if (!_existingEmployees.Contains(employee))
+            _existingEmployees.Add(employee);
+        if (!_addedEmployees.Contains(employee))
+            _addedEmployees.Add(employee);
+        if (_reallyRemovedEmployeesIds.Contains(employee.Id))
+            _reallyRemovedEmployeesIds.Remove(employee.Id);
+    }
+
+    private async Task Submit()
+    {
+        await UpdateProjectsData();
+        await ChangeManager();
+        await AddEmployeesOnProject();
+
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private async Task<Result> UpdateProjectsData()
+    {
+        UpdateProjectsDataCommand command = new(ProjectToEdit);
+        var result = await Mediator.Send(command);
+        if (result.IsSuccess)
+        {
+            ProjectToEdit = result.Value;
+            return Result.Success();
+        }
+        else
+        {
+            return Result.Error(result.Errors.ToArray());
+        }
+    }
+
+    private async Task<Result> AddEmployeesOnProject()
+    {
+        if (_addedEmployees != null && _addedEmployees.Count > 0)
+        {
+            AddRangeOfEmployeesCommand command = new(_addedEmployees.Select(e => e.Id), ProjectToEdit.Id);
+            var result = await Mediator.Send(command);
+            return result;
+        }
+        return Result.Success();
+    }
+
+    private async Task<Result> ChangeManager()
+    {
+        if (_manager != null && _oldManager != null && !_manager.Equals(_oldManager))
+        {
+            DemoteManagerToEmployeeCommand demoteCommand = new(ProjectToEdit.Id, "");
+            var demoteResult = await Mediator.Send(demoteCommand);
+            Func<EmployeeDto, bool> criterion = new Func<EmployeeDto, bool>(e => e.Id == _oldManager.Id);
+            if (_existingEmployees.Contains(criterion))
+                _existingEmployees.RemoveWithCriterion(criterion);
+            if (_addedEmployees.Contains(criterion))
+                _addedEmployees.RemoveWithCriterion(criterion);
+            // add manager to the project -> promote to manager; old manager was added as employee on a server
+            criterion = new Func<EmployeeDto, bool>(e => e.Id == _manager.Id);
+            if (_existingEmployees.Contains(criterion))
+                _existingEmployees.RemoveWithCriterion(criterion);
+            if (_addedEmployees.Contains(criterion))
+                _addedEmployees.RemoveWithCriterion(criterion);
+            // TODO: add command
+            PromoteEmployeeToManagerCommand promoteCommand = new(ProjectToEdit.Id, _manager.Id);
+            var promoteResult = await Mediator.Send(promoteCommand);
+        }
+        return Result.Success();
+    }
+
+    void Cancel() => MudDialog.Cancel();
+
+    private async Task LoadEmployees(IEnumerable<int> ids)
+    {
+        GetRangeOfEmployeesQuery query = new(ids, false);
+        var result = await Mediator.Send(query);
+        if (result == null)
+            _existingEmployees = new List<EmployeeDto>();
+        else
+            _existingEmployees = result.ToList();
+    }
+
+    private void SetManager()
+    {
+        if (ProjectToEdit == null)
+        {
+            Snackbar.Add("Project to edit is null.", Severity.Error);
+            Cancel();
+        }
+        if (_existingEmployees == null || _existingEmployees.Count() == 0)
+            _manager = new EmployeeDto();
+        else
+            _manager = _existingEmployees.FirstOrDefault(e => e.Id == ProjectToEdit.ManagerId) ?? new EmployeeDto();
+        _oldManager = _manager;
+    }
+
+    private async Task OnManagerChanging()
+    {
+        DialogOptions options = new DialogOptions
+            {
+                CloseButton = true,
+                CloseOnEscapeKey = true,
+                MaxWidth = MaxWidth.Large,
+                FullWidth = true
+            };
+        DialogParameters parameters = new DialogParameters();
+        parameters.Add(nameof(SelectEmployeesDialog.Multiselection), false);
+        parameters.Add(nameof(SelectEmployeesDialog.LoadEmloyees), false);
+        parameters.Add(nameof(SelectEmployeesDialog.EmployeesList), _existingEmployees);
+        var dialog = DialogService.Show<SelectEmployeesDialog>("Выбор менеджера", options);
+        using var task = dialog.Result;
+        var result = await task;
+        if (result != null && !result.Cancelled)
+        {
+            if (result.Data is EmployeeDto futureManager)
+            {
+                _manager = futureManager;  // old manager in _oldManager. 
+            }
+        }
+    }
+}
+

@@ -48,6 +48,23 @@ namespace Sibers.ProjectManagementSystem.API.Controllers
                 return ResultErrorsHandler.Handle(response);
         }
 
+        [HttpGet("range/{includeAdditionalData:bool}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IEnumerable<EmployeeDto>>> GetRangeOfEmployees(
+            [FromBody] IEnumerable<int> ids,
+            [FromRoute]bool includeAdditionalData = false)
+        {
+            GetRangeOfEmployeesQuery query = new GetRangeOfEmployeesQuery(ids, includeAdditionalData);
+            var response = await _mediator.Send(query);
+            if (response.IsSuccess)
+                return Ok(response.GetValue());
+            else
+                return ResultErrorsHandler.Handle(response);
+        }
+
         [HttpPost("[action]/{projectId}/{employeeId}")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

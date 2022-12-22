@@ -3,8 +3,9 @@
 @using MediatR
 @using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Dtos
 @using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Projects.Queries
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Dialogs
 
-
+@inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject IMediator Mediator
 
@@ -125,9 +126,22 @@ else
 
     private async Task OnWatchProject(int projectId)
     {
-        //ProjectDto project = await ProjectsWebService.GetEntityByIdAsync(projectId);
-        //ICommand command = new ShowWatchProjectDialogCommand(DialogService);
-        //command.Execute(project);
+        var options = new DialogOptions
+            {
+                CloseButton = true,
+                CloseOnEscapeKey = true,
+                MaxWidth = MaxWidth.Large,
+                FullWidth = true
+            };
+        DialogParameters parameters = new DialogParameters();
+        GetProjectByIdQuery query = new GetProjectByIdQuery(projectId, false);
+        ProjectDto project = await Mediator.Send(query);
+        if (project == null)
+        {
+            Snackbar.Add("Ошибка при загрузке данных проекта", Severity.Error);
+        }
+        parameters.Add("Project", project);
+        var dialog = DialogService.Show<WatchProjectDialog>("Информация о проекте", parameters, options);
     }
 
     private async void OnProjectDeleting(int projectId)

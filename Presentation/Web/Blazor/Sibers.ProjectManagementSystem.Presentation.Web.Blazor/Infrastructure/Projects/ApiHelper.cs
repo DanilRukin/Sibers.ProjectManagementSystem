@@ -10,6 +10,8 @@
                 => $"{_api}/{id}/{includeAdditionalData}";
             public static string All(bool includeAdditionalData = false)
                 => $"{_api}/all?includeAdditionalData={includeAdditionalData}";
+            public static string Range(bool includeAdditionalData = false)
+                => $"{_api}/range/{includeAdditionalData}";
         }
 
         public static class Put
@@ -26,6 +28,9 @@
                 => $"{_api}/promoteemployee/{projectId}/{employeeId}";
             public static string TransferEmployee(int currentProjectId, int futureProjectId, int employeeId)
                 => $"{_api}/transferemployee/{currentProjectId}/{futureProjectId}/{employeeId}";
+            public static string AddRangeOfEmployees(int projectId)
+                => $"{_api}/addrangeofemployees{projectId}";
+            public static string Update() => $"{_api}/update";
         }
 
         public static class Post

@@ -1,0 +1,137 @@
+﻿@using MediatR
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Dtos
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Projects.Queries
+
+
+@inject IMediator Mediator
+
+<MudDialog>
+    <DialogContent>
+        <MudContainer>
+            @if (_projectsList == null)
+            {
+                <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+            }
+            else
+            {
+                @if (Multiselection == false)
+                {
+                    <MudText GutterBottom="true" Typo="Typo.h4">
+                        Выбранный проект
+                    </MudText>
+                    <MudText GutterBottom="true">@_selectedProject?.Name</MudText>
+                }
+                <MudTable Style="height:stretch;" Items="_projectsList" FixedHeader="true" FixedFooter="true"
+                      Hover="true" SortLabel="Sort by" MultiSelection="@Multiselection"
+                      @bind-SelectedItems="_selectedProjects" @bind-SelectedItem="_selectedProject">
+                    <HeaderContent>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<ProjectDto, object>(e => e.Id)">
+                                Id
+                            </MudTableSortLabel>
+                        </MudTh>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<ProjectDto, object>(e => e.Name)">
+                                Название
+                            </MudTableSortLabel>
+                        </MudTh>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<ProjectDto, object>(e => e.StartDate)">
+                                Дата начала
+                            </MudTableSortLabel>
+                        </MudTh>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<ProjectDto, object>(e => e.EndDate)">
+                                Дата окончания
+                            </MudTableSortLabel>
+                        </MudTh>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<ProjectDto, object>(e => e.NameOfTheCustomerCompany)">
+                                Компания-заказчик
+                            </MudTableSortLabel>
+                        </MudTh>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<ProjectDto, object>(e => e.NameOfTheContractorCompany)">
+                                Компания-исполнитель
+                            </MudTableSortLabel>
+                        </MudTh>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<ProjectDto, object>(e => e.Priority)">
+                                Приоритет
+                            </MudTableSortLabel>
+                        </MudTh>
+                    </HeaderContent>
+                    <RowTemplate Context="pr">
+                        <MudTd DataLabel="Id">@pr.Id</MudTd>
+                        <MudTd DataLabel="Name">@pr.Name</MudTd>
+                        <MudTd DataLabel="StartDate">@pr.StartDate</MudTd>
+                        <MudTd DataLabel="EndDate">@pr.EndDate</MudTd>
+                        <MudTd DataLabel="NameOfCustomerCompany">@pr.NameOfTheCustomerCompany</MudTd>
+                        <MudTd DataLabel="NameOfContractorCompany">@pr.NameOfTheContractorCompany</MudTd>
+                        <MudTd DataLabel="Priority">@pr.Priority</MudTd>
+                    </RowTemplate>
+                    <PagerContent>
+                        <MudTablePager PageSizeOptions="new int[] { 10, 25, 50, 100 }" />
+                    </PagerContent>
+                </MudTable>
+            }
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Submit">Выбрать</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+    private ICollection<ProjectDto> _projectsList;
+    private HashSet<ProjectDto> _selectedProjects = new HashSet<ProjectDto>();
+    /// <summary>
+    /// Indicates the need for multiple project selection
+    /// </summary>
+    [Parameter]
+    public bool Multiselection { get; set; }
+
+    [Parameter]
+    public ICollection<int> IncludeOnly { get; set; }
+
+    private ProjectDto _selectedProject;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProjects();
+    }
+
+    private async Task LoadProjects()
+    {
+        IEnumerable<ProjectDto>? projects;
+        if (IncludeOnly == null || IncludeOnly.Count == 0)
+        {
+            GetAllProjectsQuery query = new GetAllProjectsQuery(false);
+            projects = await Mediator.Send(query);
+        }
+        else
+        {
+            GetRangeOfProjectsQuery query = new GetRangeOfProjectsQuery(IncludeOnly, false);
+            projects = await Mediator.Send(query);   
+        }
+        if (projects == null)
+            _projectsList = new List<ProjectDto>();
+        else
+            _projectsList = projects.ToList();
+    }
+
+    private void Submit()
+    {
+        if (Multiselection)
+        {
+            MudDialog.Close(DialogResult.Ok(_selectedProjects));
+        }
+        else
+        {
+            MudDialog.Close(DialogResult.Ok(_selectedProject));
+        }
+    }
+}

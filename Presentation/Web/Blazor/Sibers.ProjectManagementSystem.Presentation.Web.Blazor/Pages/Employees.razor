@@ -1,0 +1,171 @@
+﻿@page "/employees"
+
+@using MediatR
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Dialogs
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Dtos
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Employees.Queries
+
+
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject IMediator Mediator
+
+
+<PageTitle>Все сотрудники компании</PageTitle>
+<MudFab Style="position:fixed; bottom:10px; right:10px;" Color="Color.Success"
+        StartIcon="@Icons.Material.Filled.Add" @onclick="OnEmployeeCreate" />
+<MudText Typo="Typo.h3" GutterBottom="true">Все сотрудники компании</MudText>
+
+@if (_employeesList == null)
+{
+    <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+}
+else
+{
+    <MudTable Style="height:stretch;" Items="_employeesList" FixedHeader="true" FixedFooter="true" Hover="true" SortLabel="Sort by">
+        <HeaderContent>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<EmployeeDto, object>(e => e.Id)">
+                    Id
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<EmployeeDto, object>(e => e.FirstName)">
+                    Фамилия
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<EmployeeDto, object>(e => e.LastName)">
+                    Имя
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<EmployeeDto, object>(e => e.Patronymic)">
+                    Отчество
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<EmployeeDto, object>(e => e.Email)">
+                    Email
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                Действие
+            </MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Id">@context.Id</MudTd>
+            <MudTd DataLabel="FirstName">@context.FirstName</MudTd>
+            <MudTd DataLabel="LastName">@context.LastName</MudTd>
+            <MudTd DataLabel="Patronymic">@context.Patronymic</MudTd>
+            <MudTd DataLabel="Email">@context.Email</MudTd>
+            <MudTd>
+                <MudIconButton Color="Color.Info" Variant="Variant.Filled" Icon="@Icons.Filled.RemoveRedEye" @onclick="@(() => OnEmployeeWatch(context))">
+                </MudIconButton>
+                <MudIconButton Color="Color.Success" Variant="Variant.Filled" Icon="@Icons.Filled.Edit" @onclick="OnEmployeeEdit">
+                </MudIconButton>
+                <MudIconButton Color="Color.Error" Variant="Variant.Filled" Icon="@Icons.Filled.Delete" @onclick="@(() => OnEmployeeDelete(context))">
+                </MudIconButton>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[] { 10, 25, 50, 100 }" />
+        </PagerContent>
+    </MudTable>
+}
+
+@code {
+    private ICollection<EmployeeDto> _employeesList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEmployees();
+    }
+
+    private async Task LoadEmployees()
+    {
+        GetAllEmployeesQuery query = new GetAllEmployeesQuery(false);
+        var result = await Mediator.Send(query);
+        if (result == null)
+            _employeesList = new List<EmployeeDto>();
+        else
+            _employeesList = result.ToList();
+    }
+
+    private void OnEmployeeEdit()
+    {
+        //DialogOptions options = new DialogOptions
+        //    {
+        //        CloseButton = true,
+        //        CloseOnEscapeKey = true,
+        //        MaxWidth = MaxWidth.Medium,
+        //        FullWidth = true
+        //    };
+        //var dialog = DialogService.Show<EmployeeManagementDialog>("Управление сотрудником", options);
+    }
+
+    private void OnEmployeeWatch(EmployeeDto employee)
+    {
+        DialogOptions options = new DialogOptions
+            {
+                CloseButton = true,
+                CloseOnEscapeKey = true,
+                MaxWidth = MaxWidth.Medium,
+                FullWidth = true
+            };
+        DialogParameters parameters = new DialogParameters();
+        parameters.Add(nameof(WatchEmployeeDialog.EmployeeToWatch), employee);
+        var dialog = DialogService.Show<WatchEmployeeDialog>("Просмотр сотрудника", parameters, options);
+    }
+
+    private async Task OnEmployeeCreate()
+    {
+        //DialogOptions options = new DialogOptions
+        //    {
+        //        CloseButton = true,
+        //        CloseOnEscapeKey = true,
+        //        MaxWidth = MaxWidth.Medium,
+        //        FullWidth = true
+        //    };
+        //var dialog = DialogService.Show<CreateEmployeeDialog>("Создание сотрудника", options);
+        //using var task = dialog.Result;
+        //var result = await task;
+        //if (!result.Cancelled)
+        //{
+        //    if (result.Data is bool ok)
+        //    {
+        //        _employeesList.Clear();
+        //        ICollection<EmployeeDto> employees = await EmployeeWebService.GetAllAsync();
+        //        foreach (var item in employees)
+        //        {
+        //            _employeesList.Add(item);
+        //        }
+        //        Snackbar.Add("Информация обновлена", Severity.Info);
+        //    }
+        //}
+    }
+
+    private async Task OnEmployeeDelete(EmployeeDto employee)
+    {
+        //bool? result = await DialogService.ShowMessageBox(
+        //    title: $"Удаление сотрудника '{employee.FirstName} {employee.LastName} {employee.Patronymic}'",
+        //    markupMessage: new MarkupString("Вы действительно хотите удалить сотрудника? Действие невозможно будет отменить"),
+        //    yesText: "Удалить",
+        //    cancelText: "Отмена"
+        //);
+        //if (result != null && result == true)
+        //{
+        //    _employeesList.Remove(employee);
+        //    var entity = await EmployeeWebService.DeleteEntityAsync(employee);
+        //    if (entity == default)
+        //    {
+        //        Snackbar.Add("Сотрудник не был удален", Severity.Error);
+        //    }
+        //    else
+        //    {
+        //         Snackbar.Add("Сотрудник был удален", Severity.Success);
+        //    }
+        //}
+    }
+}
+

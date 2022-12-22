@@ -1,0 +1,111 @@
+﻿@using MediatR
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Dtos
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Employees.Queries
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Projects.Queries
+
+@inject IMediator Mediator
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudContainer>
+            @if (EmployeeToWatch == null)
+            {
+                <MudProgressCircular Indeterminate="true"></MudProgressCircular>
+            }
+            else
+            {
+                <MudText GutterBottom="true" Typo="Typo.h6">
+                    Фамилия Имя Отчество
+                </MudText>
+                <MudText GutterBottom="true" Typo="Typo.h4">
+                    @EmployeeToWatch.FirstName @EmployeeToWatch.LastName @EmployeeToWatch.Patronymic
+                </MudText>
+                <MudText GutterBottom="true" Typo="Typo.h6">
+                    Email
+                </MudText>
+                <MudText GutterBottom="true" Typo="Typo.h4">
+                    @EmployeeToWatch.Email
+                </MudText>
+                <MudText Typo="Typo.h5" GutterBottom="true" Class="mt-5">
+                    Задействован на проектах
+                </MudText>
+                @if (EmployeeToWatch.ProjectsIds == null)
+                {
+                    <MudProgressCircular Indeterminate="true"></MudProgressCircular>
+                }
+                else
+                {
+                    <MudTable Items="_projects" Hover="true">
+                        <HeaderContent>
+                            <MudTh>
+                                Название проекта
+                            </MudTh>
+                            <MudTh>
+                                Роль на проекте
+                            </MudTh>
+                        </HeaderContent>
+                        <RowTemplate Context="ep">
+                            <MudTd DataLabel="Название проекта">@ep.Name</MudTd>
+                            <MudTd DataLabel="Роль на проекте">
+                                @(() => @ep.ManagerId == EmployeeToWatch.Id ? "Менеджер" : "Сотрудник")
+                            </MudTd>
+                        </RowTemplate>
+                        <PagerContent>
+                            <MudTablePager PageSizeOptions="new int[] { 5, 10, 15}" />
+                        </PagerContent>
+                    </MudTable>
+                }
+            }
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Назад</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
+    /// <summary>
+    /// Employee to watch
+    /// </summary>
+    [Parameter]
+    public EmployeeDto EmployeeToWatch { get; set; }
+
+    private ICollection<ProjectDto> _projects;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProjects();
+    }
+
+    private async Task LoadProjects()
+    {
+        if (EmployeeToWatch != null)
+        {
+            if (EmployeeToWatch.ProjectsIds == null || EmployeeToWatch.ProjectsIds.Count == 0)
+            {
+                GetEmployeeByIdQuery query = new GetEmployeeByIdQuery(EmployeeToWatch.Id, true);
+                EmployeeToWatch = await Mediator.Send(query);
+                if (EmployeeToWatch == null)
+                {
+                    Snackbar.Add("Произошла ошибка при обновлении данных сотрудника", Severity.Error);
+                }
+            }
+            else
+            {
+                GetRangeOfProjectsQuery projectsQuery = new GetRangeOfProjectsQuery(EmployeeToWatch.ProjectsIds, true);
+                var projects = await Mediator.Send(projectsQuery);
+                if (projects == null)
+                    _projects = new List<ProjectDto>();
+                else
+                    _projects = projects.ToList();
+            }
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}
+

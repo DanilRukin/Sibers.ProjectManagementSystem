@@ -16,11 +16,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Infrastructure\Employees\Commands\" />
-	  <Folder Include="Infrastructure\Projects\Commands\" />
 	  <Folder Include="Infrastructure\Tasks\Queries\" />
 	  <Folder Include="ViewModels\" />
-	  <Folder Include="Dialogs\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\..\..\Sibers.ProjectManagementSystem.SharedKernel\Sibers.ProjectManagementSystem.SharedKernel.csproj" />
 	</ItemGroup>
 
 	<ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>

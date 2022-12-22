@@ -1,0 +1,159 @@
+﻿@using MediatR
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Dtos
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Employees.Queries
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Extensions
+
+
+@inject IMediator Mediator
+
+<MudDialog>
+    <DialogContent>
+        <MudContainer>
+            @if (EmployeesList == null)
+            {
+                <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+            }
+            else
+            {
+                @if (!Multiselection)
+                {
+                    <MudText GutterBottom="true" Typo="Typo.h4">
+                        Выбранный сотрудник
+                    </MudText>
+                    <MudText GutterBottom="true">
+                        @_selectedEmployee?.FirstName @_selectedEmployee?.LastName @_selectedEmployee?.Patronymic
+                    </MudText>
+                }
+                <MudTable Style="height:stretch;" Items="EmployeesList" FixedHeader="true" FixedFooter="true" 
+                    Hover="true" SortLabel="Sort by" MultiSelection="Multiselection"
+                      @bind-SelectedItems="_selectedEmployees" @bind-SelectedItem="_selectedEmployee">
+                <HeaderContent>
+                    <MudTh>
+                        <MudTableSortLabel SortBy="new Func<EmployeeDto, object>(e => e.Id)">
+                            Id
+                        </MudTableSortLabel>
+                    </MudTh>
+                    <MudTh>
+                        <MudTableSortLabel SortBy="new Func<EmployeeDto, object>(e => e.FirstName)">
+                            Фамилия
+                        </MudTableSortLabel>
+                    </MudTh>
+                    <MudTh>
+                        <MudTableSortLabel SortBy="new Func<EmployeeDto, object>(e => e.LastName)">
+                            Имя
+                        </MudTableSortLabel>
+                    </MudTh>
+                    <MudTh>
+                        <MudTableSortLabel SortBy="new Func<EmployeeDto, object>(e => e.Patronymic)">
+                            Отчество
+                        </MudTableSortLabel>
+                    </MudTh>
+                    <MudTh>
+                        <MudTableSortLabel SortBy="new Func<EmployeeDto, object>(e => e.Email)">
+                            Email
+                        </MudTableSortLabel>
+                    </MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Id">@context.Id</MudTd>
+                    <MudTd DataLabel="FirstName">@context.FirstName</MudTd>
+                    <MudTd DataLabel="LastName">@context.LastName</MudTd>
+                    <MudTd DataLabel="Patronymic">@context.Patronymic</MudTd>
+                    <MudTd DataLabel="Email">@context.Email</MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager PageSizeOptions="new int[] { 10, 25, 50, 100 }"/>
+                </PagerContent>
+            </MudTable>
+            }
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Submit">Выбрать</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+    /// <summary>
+    /// Employees to show. Can be initialized from client's code
+    /// </summary>
+    [Parameter]
+    public IEnumerable<EmployeeDto> EmployeesList { get; set; } = new List<EmployeeDto>();
+
+    /// <summary>
+    /// Indicates the need for multiple employees selection. Default is true.
+    /// </summary>
+    [Parameter]
+    public bool Multiselection { get; set; } = true;
+
+    /// <summary>
+    /// Indicates the need for load employees from database. Default is false.
+    /// </summary>
+    [Parameter]
+    public bool LoadEmloyees { get; set; } = false;
+
+    /// <summary>
+    /// Employees Ids wich will be loaded
+    /// </summary>
+    [Parameter]
+    public ICollection<int> IncludeOnly { get; set; }
+
+    /// <summary>
+    /// Employees wich must not be showed if <see cref="LoadEmloyees"/> is true
+    /// </summary>
+    [Parameter]
+    public ICollection<EmployeeDto> ExcludedEmployeesList { get; set; } = new List<EmployeeDto>();
+
+    private EmployeeDto _selectedEmployee;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (LoadEmloyees)
+            await LoadEmployees();
+    }
+    private HashSet<EmployeeDto> _selectedEmployees = new HashSet<EmployeeDto>();
+
+    private async Task LoadEmployees()
+    {
+        IEnumerable<EmployeeDto>? employees;
+        if (IncludeOnly == null || IncludeOnly.Count == 0)
+        {
+            GetAllEmployeesQuery query = new GetAllEmployeesQuery(false);
+            employees = await Mediator.Send(query);
+            if (employees != null)
+            {
+                ICollection<EmployeeDto> toClear = employees.ToList();
+                foreach (var item in ExcludedEmployeesList)
+                {
+                    toClear.RemoveWithCriterion(e => e.Id == item.Id);
+                }
+                employees = toClear;
+            }
+        }
+        else
+        {
+            GetRangeOfEmployeesQuery query = new GetRangeOfEmployeesQuery(IncludeOnly, false);
+            employees = await Mediator.Send(query);
+        }
+        if (employees == null)
+            EmployeesList = new List<EmployeeDto>();
+        else
+            EmployeesList = employees.ToList();
+    }
+
+    private void Submit() 
+    {
+        if (Multiselection)
+        {
+            MudDialog.Close(DialogResult.Ok(_selectedEmployees));
+        }
+        else
+        {
+            MudDialog.Close(DialogResult.Ok(_selectedEmployee));
+        }
+    }
+}
+
