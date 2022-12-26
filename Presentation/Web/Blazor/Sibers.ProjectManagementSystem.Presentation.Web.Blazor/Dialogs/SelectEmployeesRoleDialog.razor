@@ -1,0 +1,134 @@
+﻿@using MediatR
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Dtos
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Employees.Queries
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Extensions
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Projects.Queries
+@using Sibers.ProjectManagementSystem.SharedKernel
+@using Sibers.ProjectManagementSystem.SharedKernel.Results
+
+
+@inject ISnackbar Snackbar
+@inject IMediator Mediator
+
+
+<MudDialog>
+    <DialogContent>
+        <MudText GutterBottom="true" Typo="Typo.h4" Align="Align.Center">@Project.Name</MudText>
+        <MudDivider />
+        <MudText Class="mt-5" GutterBottom="true" Typo="Typo.h6">ФИО сотрудника</MudText>
+        <MudText>@Employee?.FirstName @Employee?.LastName @Employee?.Patronymic</MudText>
+        <MudSelect @bind-Value="@_selectedRole" ToStringFunc="@converter" Label="Роль на проекте" AnchorOrigin="Origin.BottomCenter">
+            @foreach (EmployeesRole role in Enum.GetValues(typeof(EmployeesRole)))
+            {
+                <MudSelectItem Value="@role" />
+            }
+        </MudSelect>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Default" OnClick="Cancel">Отмена</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Принять</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Result updateResult = await UpdateData();
+        if (updateResult.ResultStatus == ResultStatus.Error)
+        {
+            Snackbar.Add(updateResult.Errors.AsOneString(), Severity.Error);
+            Cancel();
+        }
+        else if (updateResult.ResultStatus == ResultStatus.NotFound)
+        {
+            Snackbar.Add(updateResult.Errors.AsOneString(), Severity.Info);
+        }
+        else
+        {
+            Result roleResult = SetSelectedRole();
+            if (!roleResult.IsSuccess)
+            {
+                Snackbar.Add(updateResult.Errors.AsOneString(), Severity.Error);
+                Cancel();
+            }
+        }
+    }
+    private EmployeesRole _selectedRole = EmployeesRole.Employee;
+
+    /// <summary>
+    /// Indicates the need to load additional information from database. Default is true.
+    /// </summary>
+    [Parameter]
+    public bool UpdateInformation { get; set; } = true;
+
+    // This property dialog will get from parameters
+    [Parameter]
+    public ProjectDto Project { get; set; }
+    // This property dialog will get from parameters
+    [Parameter]
+    public EmployeeDto Employee { get; set; }
+
+
+    private async Task<Result> UpdateData()
+    {
+        if (Project == null)
+        {
+            return Result.Error("Не удалось получить проект.");
+        }
+        else if (Employee == null)
+        {
+            return Result.Error("Не удалось получить сотрудника.");
+        }
+        else if (UpdateInformation)
+        {
+            GetProjectByIdQuery projectQuery = new(Project.Id, true);
+            ProjectDto project = await Mediator.Send(projectQuery);
+            if (project == null)
+            {
+                return Result.NotFound("Не удалось обновить данные проекта.");
+            }
+            else
+            {
+                Project = project;
+            }
+            GetEmployeeByIdQuery employeeQuery = new(Employee.Id, true);
+            EmployeeDto employee = await Mediator.Send(employeeQuery);
+            if (employee == null)
+            {
+                return Result.NotFound("Не удалось обновить данные сотрудника.");
+            }
+            else
+            {
+                Employee = employee;
+            }
+        }
+        return Result.Success();
+    }
+
+    private Result SetSelectedRole()
+    {
+        try
+        {
+            if (Employee.Id == Project.ManagerId)
+                _selectedRole = EmployeesRole.Manager;
+            else
+                _selectedRole = EmployeesRole.Employee;
+            return Result.Success();
+        }
+        catch (Exception e)
+        {
+            return Result.Error(e.Message);
+        }
+    }
+
+    void Submit()
+    {
+        MudDialog.Close(DialogResult.Ok(_selectedRole));
+    }
+    void Cancel() => MudDialog.Cancel();
+
+    Func<EmployeesRole, string> converter = role => role == EmployeesRole.Manager ? "Руководитель" : "Сотрудник";
+}

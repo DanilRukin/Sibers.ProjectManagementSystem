@@ -187,6 +187,23 @@ namespace Sibers.ProjectManagementSystem.API.Controllers
                 return ResultErrorsHandler.Handle(response);
         }
 
+        [HttpPut("removerangeofemployees/{projectId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> RemoveRangeOfEmployees(
+            [FromRoute]int projectId, 
+            [FromBody]IEnumerable<int> employeesIds)
+        {
+            RemoveRangeOfEmployeesFromTheProjectCommand command = new(employeesIds, projectId);
+            var response = await _mediator.Send(command);
+            if (response.IsSuccess)
+                return Ok();
+            else
+                return ResultErrorsHandler.Handle(response);
+        }
+
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

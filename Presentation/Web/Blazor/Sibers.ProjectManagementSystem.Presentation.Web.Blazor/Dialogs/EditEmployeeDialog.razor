@@ -1,0 +1,207 @@
+﻿@using MediatR
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Dtos
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Employees.Commands
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Employees.Queries
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Extensions
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Projects.Queries
+@using Sibers.ProjectManagementSystem.SharedKernel
+@using Sibers.ProjectManagementSystem.SharedKernel.Results
+
+
+@inject IMediator Mediator
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+
+<MudDialog>
+    <DialogContent>
+        <MudContainer>
+            @if (EmployeeToEdit == null)
+            {
+                <MudProgressCircular Indeterminate="true"></MudProgressCircular>
+            }
+            else
+            {
+                <EditForm Model="@EmployeeToEdit">
+                    <MudTextField Class="mb-3" Label="Фамилия" @bind-Value="EmployeeToEdit.FirstName" Required="true"
+                              RequiredError="Это обязательное поле!" />
+                    <MudTextField Class="mb-3" Label="Имя" @bind-Value="EmployeeToEdit.LastName" Required="true"
+                              RequiredError="Это обязательное поле!" />
+                    <MudTextField Class="mb-3" Label="Отчество" @bind-Value="EmployeeToEdit.Patronymic" Required="true"
+                              RequiredError="Это обязательное поле!" />
+                    <MudTextField Class="mb-3" Label="Email" @bind-Value="EmployeeToEdit.Email" Required="true"
+                              RequiredError="Это обязательное поле!" />
+
+                    <MudText Typo="Typo.h5" GutterBottom="true" Class="mt-3">
+                        Задействован на проектах
+                    </MudText>
+                    @if (_employeesProjects == null)
+                    {
+                        <MudProgressCircular Indeterminate="true"></MudProgressCircular>
+                    }
+                    else
+                    {
+                        <MudTable Items="_employeesProjects" Hover="true">
+                            <HeaderContent>
+                                <MudTh>
+                                    Название проекта
+                                </MudTh>
+                                <MudTh>
+                                    Роль на проекте
+                                </MudTh>
+                                <MudTh>
+                                    Действие
+                                </MudTh>
+                            </HeaderContent>
+                            <RowTemplate Context="p">
+                                <MudTd DataLabel="Название проекта">@p.Name</MudTd>
+                                <MudTd DataLabel="Роль на проекте">
+                                    @(() => p.ManagerId == EmployeeToEdit.Id ? "Руководитель" : "Сотрудник")
+                                </MudTd>
+                                <MudTd DataLabel="Действие">
+                                    <MudButton Color="Color.Info" Variant="Variant.Filled" @onclick="@(() => OnProjectEditing(p.Id))">
+                                        Редактировать
+                                    </MudButton>
+                                </MudTd>
+                            </RowTemplate>
+                            <PagerContent>
+                                <MudTablePager PageSizeOptions="new int[] { 5, 10, 15}" />
+                            </PagerContent>
+                        </MudTable>
+                    }
+                </EditForm>
+            }
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Отмена</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Submit">Принять</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
+    private bool Loading { get; set; }
+
+    ///<summary>
+    /// Employee to edit
+    /// </summary>
+    [Parameter]
+    public EmployeeDto EmployeeToEdit { get; set; }
+
+    private ICollection<ProjectDto> _employeesProjects;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (EmployeeToEdit == null)
+        {
+            Snackbar.Add("Не удалось получить сотрудника для редактирования.", Severity.Info);
+            Cancel();
+        }
+        else
+        {
+            Result loadResult = await LoadEmployeeToEdit();
+            if (!loadResult.IsSuccess)
+            {
+                Snackbar.Add(loadResult.Errors.AsOneString(), Severity.Info);
+                Cancel();
+            }
+            else
+            {
+                Result projectsResult = await LoadProjects(EmployeeToEdit.ProjectsIds);
+                if (!projectsResult.IsSuccess)
+                {
+                    Snackbar.Add(projectsResult.Errors.AsOneString(), Severity.Info);
+                    Cancel();
+                }
+            }
+        }
+    }
+
+    private async Task<Result> LoadEmployeeToEdit()
+    {
+        GetEmployeeByIdQuery query = new(EmployeeToEdit.Id, true);
+        var response = await Mediator.Send(query);
+        if (response == null)
+            return Result.Error("Не удалось загрузить данные сотрудника.");
+        else
+        {
+            EmployeeToEdit = response;
+            return Result.Success();
+        }
+    }
+
+    private async Task<Result> LoadProjects(IEnumerable<int> projectsIds)
+    {
+        GetRangeOfProjectsQuery query = new(projectsIds, true);
+        var response = await Mediator.Send(query);
+        if (response == null)
+            return Result.Error("Не удалось загрузить проекты сотрудника.");
+        else
+        {
+            _employeesProjects = response.ToList();
+            return Result.Success();
+        }
+    }
+
+    private async Task OnProjectEditing(int projectId)
+    {
+        ProjectDto? projectToEdit = _employeesProjects.FirstOrDefault(p => p.Id == projectId);
+        if (projectToEdit == null)
+        {
+            Snackbar.Add($"Не удается получить проект с id: {projectId}", Severity.Warning);
+        }
+        else
+        {
+            var options = new DialogOptions
+            {
+                CloseButton = true,
+                CloseOnEscapeKey = true,
+                MaxWidth = MaxWidth.Large,
+                FullWidth = true
+            };
+            DialogParameters parameters = new DialogParameters();
+            parameters.Add(nameof(EditProjectDialog.ProjectToEdit), projectToEdit);
+            var dialog = DialogService.Show<EditProjectDialog>("Управление проектом", parameters, options);
+            using var task = dialog.Result;
+            var result = await task;
+            if (result != null && !result.Cancelled && (result.Data is bool ok))
+            {
+                if (ok)
+                {
+                    GetProjectByIdQuery query = new(projectId, true);
+                    ProjectDto project = await Mediator.Send(query);
+                    if (project != null)
+                    {
+                        _employeesProjects.RemoveWithCriterion(p => p.Id == projectId);
+                        _employeesProjects.Add(project);
+                        Snackbar.Add("Данные проекта обновлены.", Severity.Success);
+                    }
+                    else
+                    {
+                        Snackbar.Add("Не удалось обновить данные проекта.", Severity.Warning);
+                    }
+                }
+            }
+        }
+    }
+
+    private async Task Submit()
+    {
+        UpdateEmployeesDataCommand command = new(EmployeeToEdit);
+        Result<EmployeeDto> updateResult = await Mediator.Send(command);
+        if (updateResult.IsSuccess)
+        {
+            Snackbar.Add("Данные сотрудника обновлены.", Severity.Success);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        else
+        {
+            Snackbar.Add(updateResult.Errors.AsOneString(), Severity.Error);
+        }
+    }
+    void Cancel() => MudDialog.Cancel();
+}
+

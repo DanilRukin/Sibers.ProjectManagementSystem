@@ -109,5 +109,20 @@ namespace Sibers.ProjectManagementSystem.API.Controllers
             else
                 return ResultErrorsHandler.Handle(response);
         }
+
+        [HttpPut("update")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<EmployeeDto>> Update([FromBody]EmployeeDto employee)
+        {
+            UpdateEmployeesDataCommand command = new(employee);
+            var response = await _mediator.Send(command);
+            if (response.IsSuccess)
+                return Ok(response.Value);
+            else
+                return ResultErrorsHandler.Handle(response);
+        }
     }
 }

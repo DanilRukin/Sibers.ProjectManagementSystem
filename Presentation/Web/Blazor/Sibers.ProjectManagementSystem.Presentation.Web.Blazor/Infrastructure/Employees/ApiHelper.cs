@@ -26,6 +26,7 @@
                 => $"{Api}/StartTask/{taskId}/{projectId}/{employeeId}";
             public static string CompleteTask(Guid taskId, int employeeId, int projectId)
                 => $"{Api}/CompleteTask/{taskId}/{projectId}/{employeeId}";
+            public static string Update() => $"{Api}/update";
         }
 
         public static class Delete

@@ -61,7 +61,7 @@
                                     <MudTextField @bind-Value="_managerFullName" Label="ФИО руководителя" ReadOnly="true" Variant="Variant.Text" />
                                 </MudItem>
                                 <MudItem xs="4">
-                                    <MudButton Color="Color.Info" Variant="Variant.Filled">
+                                    <MudButton Color="Color.Info" Variant="Variant.Filled" @onclick="OnManagerChanging">
                                         Изменить
                                     </MudButton>
                                 </MudItem>
@@ -134,7 +134,7 @@
     MudDialogInstance MudDialog { get; set; }
 
     private ICollection<EmployeeDto> _existingEmployees = new List<EmployeeDto>();
-    private EmployeeDto _manager = new EmployeeDto();
+    private EmployeeDto? _manager;
     private EmployeeDto? _oldManager;
     private string _managerFullName = "";
     private List<int> _reallyRemovedEmployeesIds = new List<int>();
@@ -176,7 +176,7 @@
         await LoadProject();
         await LoadEmployees(ProjectToEdit.EmployeesIds);
         SetManager();
-        _managerFullName = $"{_manager.FirstName} {_manager.LastName} {_manager.Patronymic}";
+        _managerFullName = $"{_manager?.FirstName} {_manager?.LastName} {_manager?.Patronymic}";
     }
 
     private async Task OnEmployeeRemovingFromProject(int employeeId)
@@ -198,7 +198,8 @@
             {
                 _existingEmployees.Remove(_existingEmployees.First(e => e.Id == employeeId));
                 _addedEmployees.Remove(_existingEmployees.First(e => e.Id == employeeId));
-                _reallyRemovedEmployeesIds.Add(employeeId);
+                if (!_reallyRemovedEmployeesIds.Contains(employeeId))
+                    _reallyRemovedEmployeesIds.Add(employeeId);
             }
         }       
     }
@@ -216,7 +217,7 @@
         parameters.Add(nameof(SelectEmployeesDialog.Multiselection), true);
         parameters.Add(nameof(SelectEmployeesDialog.LoadEmloyees), true);
         parameters.Add(nameof(SelectEmployeesDialog.ExcludedEmployeesList), _existingEmployees);
-        var dialog = DialogService.Show<SelectEmployeesDialog>("Выбор сотрудников", options);
+        var dialog = DialogService.Show<SelectEmployeesDialog>("Выбор сотрудников", parameters, options);
         using var task = dialog.Result;
         var result = await task;
         if (result != null && !result.Cancelled)
@@ -243,14 +244,34 @@
 
     private async Task Submit()
     {
-        await UpdateProjectsData();
-        await ChangeManager();
-        await AddEmployeesOnProject();
-
+        Result updateResult = await UpdateProjectsDataOnServer();
+        if (!updateResult.IsSuccess)
+        {
+            Snackbar.Add($"Не удалось обновить данные проекта. Причина: {updateResult.Errors.AsOneString()}");
+            MudDialog.Close(DialogResult.Ok(false));
+        }
+        Result changeManagerResult = await ChangeManagerOnServer();
+        if (!changeManagerResult.IsSuccess)
+        {
+            Snackbar.Add($"Не удалось изменить руководителя проекта. Причина: {changeManagerResult.Errors.AsOneString()}");
+            MudDialog.Close(DialogResult.Ok(false));
+        }
+        Result addEmployeesResult = await AddEmployeesOnProjectOnServer();
+        if (!addEmployeesResult.IsSuccess)
+        {
+            Snackbar.Add($"Не удалось добавить сотрудников на проект. Причина: {addEmployeesResult.Errors.AsOneString()}");
+            MudDialog.Close(DialogResult.Ok(false));
+        }
+        Result removeEmployeesResult = await RemoveEmployeesFromProjectOnServer();
+        if (!removeEmployeesResult.IsSuccess)
+        {
+            Snackbar.Add($"Не удалось удалить сотрудинков с проекта. Причина: {removeEmployeesResult.Errors.AsOneString()}");
+            MudDialog.Close(DialogResult.Ok(false));
+        }
         MudDialog.Close(DialogResult.Ok(true));
     }
 
-    private async Task<Result> UpdateProjectsData()
+    private async Task<Result> UpdateProjectsDataOnServer()
     {
         UpdateProjectsDataCommand command = new(ProjectToEdit);
         var result = await Mediator.Send(command);
@@ -265,7 +286,7 @@
         }
     }
 
-    private async Task<Result> AddEmployeesOnProject()
+    private async Task<Result> AddEmployeesOnProjectOnServer()
     {
         if (_addedEmployees != null && _addedEmployees.Count > 0)
         {
@@ -276,27 +297,69 @@
         return Result.Success();
     }
 
-    private async Task<Result> ChangeManager()
+    private async Task<Result> ChangeManagerOnServer()
     {
-        if (_manager != null && _oldManager != null && !_manager.Equals(_oldManager))
+        if (_manager != null && _oldManager != null && !_manager.Equals(_oldManager)) // if manager was changed
         {
-            DemoteManagerToEmployeeCommand demoteCommand = new(ProjectToEdit.Id, "");
-            var demoteResult = await Mediator.Send(demoteCommand);
-            Func<EmployeeDto, bool> criterion = new Func<EmployeeDto, bool>(e => e.Id == _oldManager.Id);
-            if (_existingEmployees.Contains(criterion))
-                _existingEmployees.RemoveWithCriterion(criterion);
-            if (_addedEmployees.Contains(criterion))
-                _addedEmployees.RemoveWithCriterion(criterion);
-            // add manager to the project -> promote to manager; old manager was added as employee on a server
-            criterion = new Func<EmployeeDto, bool>(e => e.Id == _manager.Id);
-            if (_existingEmployees.Contains(criterion))
-                _existingEmployees.RemoveWithCriterion(criterion);
-            if (_addedEmployees.Contains(criterion))
-                _addedEmployees.RemoveWithCriterion(criterion);
-            // TODO: add command
-            PromoteEmployeeToManagerCommand promoteCommand = new(ProjectToEdit.Id, _manager.Id);
-            var promoteResult = await Mediator.Send(promoteCommand);
+            Result removeResult = await DemoteOldManagerOnServer();
+            if (!removeResult.IsSuccess)
+                return removeResult;
+            // add manager to the project -> promote to manager; 
+            return await AddNewManagerOnServer();
         }
+        else if (_oldManager == null && _manager != null) // project has no has manager before
+        {
+            return await AddNewManagerOnServer();
+        }
+        else if (_oldManager != null && _manager == null)  // old manager was demoted
+        {
+            return await DemoteOldManagerOnServer();
+        }
+        return Result.Success();
+    }
+
+    private async Task<Result> AddNewManagerOnServer()
+    {
+        if (_manager == null)
+            return Result.Error("New manager was null!");
+        Func<EmployeeDto, bool> criterion = new Func<EmployeeDto, bool>(e => e.Id == _manager.Id);
+        if (_existingEmployees.Contains(criterion))
+            _existingEmployees.RemoveWithCriterion(criterion);
+        if (_addedEmployees.Contains(criterion))
+            _addedEmployees.RemoveWithCriterion(criterion);
+        AddEmployeeCommand addCommand = new(ProjectToEdit.Id, _manager.Id);
+        var addResult = await Mediator.Send(addCommand);
+        if (addResult == null)
+            return Result.Error("Result of add command was null!");
+        if (!addResult.IsSuccess)
+            return addResult;
+        PromoteEmployeeToManagerCommand promoteCommand = new(ProjectToEdit.Id, _manager.Id);
+        var promoteResult = await Mediator.Send(promoteCommand);
+        if (promoteResult == null)
+            return Result.Error("Promote result was null!");
+        if (!promoteResult.IsSuccess)
+            return promoteResult;
+        return Result.Success();
+    }
+
+    private async Task<Result> DemoteOldManagerOnServer()
+    {
+        if (_oldManager == null)
+            return Result.Error("_oldManager was null");
+        // demote old manager
+        DemoteManagerToEmployeeCommand demoteCommand = new(ProjectToEdit.Id, "");
+        var demoteResult = await Mediator.Send(demoteCommand);
+        if (demoteResult == null)
+            return Result.Error("Result of demote command was null!");
+        if (!demoteResult.IsSuccess)
+            return demoteResult;
+
+        // old manager was added as employee on a server, so we must remove _oldManager from collections
+        Func<EmployeeDto, bool> criterion = new Func<EmployeeDto, bool>(e => e.Id == _oldManager.Id);
+        if (_existingEmployees.Contains(criterion))
+            _existingEmployees.RemoveWithCriterion(criterion);
+        if (_addedEmployees.Contains(criterion))
+            _addedEmployees.RemoveWithCriterion(criterion);
         return Result.Success();
     }
 
@@ -320,10 +383,23 @@
             Cancel();
         }
         if (_existingEmployees == null || _existingEmployees.Count() == 0)
-            _manager = new EmployeeDto();
+            _manager = null;
         else
-            _manager = _existingEmployees.FirstOrDefault(e => e.Id == ProjectToEdit.ManagerId) ?? new EmployeeDto();
+            _manager = _existingEmployees.FirstOrDefault(e => e.Id == ProjectToEdit.ManagerId);
         _oldManager = _manager;
+    }
+
+    private async Task<Result> RemoveEmployeesFromProjectOnServer()
+    {
+        if (_reallyRemovedEmployeesIds != null && _reallyRemovedEmployeesIds.Count > 0)
+        {
+            RemoveRangeOfEmployeesCommand command = new(_reallyRemovedEmployeesIds, ProjectToEdit.Id);
+            var result = await Mediator.Send(command);
+            if (result == null)
+                return Result.Error("Remove employees result was null!");
+            return result;
+        }
+        return Result.Success();
     }
 
     private async Task OnManagerChanging()
@@ -339,7 +415,7 @@
         parameters.Add(nameof(SelectEmployeesDialog.Multiselection), false);
         parameters.Add(nameof(SelectEmployeesDialog.LoadEmloyees), false);
         parameters.Add(nameof(SelectEmployeesDialog.EmployeesList), _existingEmployees);
-        var dialog = DialogService.Show<SelectEmployeesDialog>("Выбор менеджера", options);
+        var dialog = DialogService.Show<SelectEmployeesDialog>("Выбор менеджера", parameters, options);
         using var task = dialog.Result;
         var result = await task;
         if (result != null && !result.Cancelled)
@@ -347,6 +423,7 @@
             if (result.Data is EmployeeDto futureManager)
             {
                 _manager = futureManager;  // old manager in _oldManager. 
+                _managerFullName = $"{_manager.FirstName} {_manager.LastName} {_manager.Patronymic}"; 
             }
         }
     }

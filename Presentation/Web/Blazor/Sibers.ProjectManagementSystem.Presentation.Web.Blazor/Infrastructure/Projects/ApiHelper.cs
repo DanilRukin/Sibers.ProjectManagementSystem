@@ -31,6 +31,8 @@
             public static string AddRangeOfEmployees(int projectId)
                 => $"{_api}/addrangeofemployees{projectId}";
             public static string Update() => $"{_api}/update";
+            public static string RemoveRangeOfEmployees(int projectId) =>
+                $"{_api}/removerangeofemployees/{projectId}";
         }
 
         public static class Post
