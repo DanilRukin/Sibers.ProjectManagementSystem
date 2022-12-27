@@ -44,9 +44,9 @@ namespace Sibers.ProjectManagementSystem.Application.Commands
             {
                 return DomainExceptionHandler.Handle(ex);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw;
+                return Result.Error($"Something was wrong duruing the employee deleting process. Reason: {e.Message}");
             }
         }
     }
