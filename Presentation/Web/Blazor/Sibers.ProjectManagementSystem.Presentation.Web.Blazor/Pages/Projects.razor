@@ -2,8 +2,12 @@
 
 @using MediatR
 @using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Dtos
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Extensions
+@using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Projects.Commands
 @using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Projects.Queries
 @using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Dialogs
+@using Sibers.ProjectManagementSystem.SharedKernel
+@using Sibers.ProjectManagementSystem.SharedKernel.Results
 
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
@@ -95,33 +99,30 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await FillProjects();
+        await LoadProjects();
     }
 
-    private async Task FillProjects()
+    private async Task LoadProjects()
     {
         _projects = (ICollection<ProjectDto>)await Mediator.Send(new GetAllProjectsQuery(false));
     }
 
-    private async void OnCreateProject()
+    private async Task OnCreateProject()
     {
-        //var options = new DialogOptions
-        //    {
-        //        CloseButton = true,
-        //        CloseOnEscapeKey = true,
-        //        MaxWidth = MaxWidth.Large,
-        //        FullWidth = true
-        //    };
-        //var dialog = DialogService.Show<CreateProjectDialog>("Создание проекта", options);
-        //using var task = dialog.Result;
-        //var result = await task;
-        //if (!result.Cancelled)
-        //{
-        //    if (result.Data is ProjectDto project)
-        //    {
-        //        _projects.Add(project);
-        //    }
-        //}
+        var options = new DialogOptions
+            {
+                CloseButton = true,
+                CloseOnEscapeKey = true,
+                MaxWidth = MaxWidth.Large,
+                FullWidth = true
+            };
+        var dialog = DialogService.Show<CreateProjectDialog>("Создание проекта", options);
+        using var task = dialog.Result;
+        var result = await task;
+        if (result != null && !result.Cancelled && (result.Data is ProjectDto createdProject))
+        {
+            _projects.Add(createdProject);
+        }
     }
 
     private async Task OnWatchProject(int projectId)
@@ -144,45 +145,62 @@ else
         var dialog = DialogService.Show<WatchProjectDialog>("Информация о проекте", parameters, options);
     }
 
-    private async void OnProjectDeleting(int projectId)
+    private async Task OnProjectDeleting(int projectId)
     {
-        //bool? result = await DialogService.ShowMessageBox(
-        //    title: $"Удаление проекта {projectId}",
-        //    markupMessage: new MarkupString("Вы действительно хотите удалить проект? Действие невозможно будет отменить"),
-        //    yesText: "Удалить",
-        //    cancelText: "Отмена"
-        //);
-        //if (result != null && result == true)
-        //{
-        //    ProjectDto dto = _projects.First(d => d.Id == projectId);
-        //    await ProjectsWebService.DeleteEntityAsync(dto);
-        //    _projects.Remove(_projects.First(p => p.Id == projectId));
-        //}
+        bool? result = await DialogService.ShowMessageBox(
+            title: $"Удаление проекта {projectId}",
+            markupMessage: new MarkupString("Вы действительно хотите удалить проект? Действие невозможно будет отменить"),
+            yesText: "Удалить",
+            cancelText: "Отмена"
+        );
+        if (result != null && result == true)
+        {
+            DeleteProjectCommand deleteCommand = new(projectId);
+            Result deleteResult = await Mediator.Send(deleteCommand);
+            if (deleteResult.IsSuccess)
+            {
+                _projects.RemoveWithCriterion(p => p.Id == projectId);
+                Snackbar.Add("Проект успешно удален.", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add(deleteResult.Errors.AsOneString(), Severity.Error);
+            }
+        }
     }
 
     protected async Task OnProjectEdit(int projectId)
     {
-        //var options = new DialogOptions
-        //    {
-        //        CloseButton = true,
-        //        CloseOnEscapeKey = true,
-        //        MaxWidth = MaxWidth.Large,
-        //        FullWidth = true
-        //    };
-        //ProjectDto project = await ProjectsWebService.GetEntityByIdAsync(projectId);
-        //DialogParameters parameters = new DialogParameters();
-        //parameters.Add("Project", project);
-        //var dialog = DialogService.Show<ProjectManagementDialog>("Управление проектом", parameters, options);
-        //using var task = dialog.Result;
-        //var result = await task;
-        //if (!result.Cancelled)
-        //{
-        //    if (result.Data is ProjectDto editedProject)
-        //    {
-        //        _projects.Remove(_projects.First(p => p.Id == projectId));
-        //        _projects.Add(editedProject);
-        //    }
-        //}
+        var options = new DialogOptions
+            {
+                CloseButton = true,
+                CloseOnEscapeKey = true,
+                MaxWidth = MaxWidth.Large,
+                FullWidth = true
+            };
+        ProjectDto? project = _projects.FirstOrDefault(p => p.Id == projectId);
+        DialogParameters parameters = new DialogParameters();
+        parameters.Add(nameof(EditProjectDialog.ProjectToEdit), project);
+        var dialog = DialogService.Show<EditProjectDialog>("Управление проектом", parameters, options);
+        using var task = dialog.Result;
+        var result = await task;
+        if (result != null && !result.Cancelled && (result.Data is bool ok))
+        {
+            if (ok)
+            {
+                GetProjectByIdQuery query = new(projectId, false);
+                ProjectDto updatedProject = await Mediator.Send(query);
+                if (updatedProject == null)
+                {
+                    Snackbar.Add("Не удалось получить обновленные данные проекта.");
+                }
+                else
+                {
+                    _projects.RemoveWithCriterion(p => p.Id == projectId);
+                    _projects.Add(updatedProject);
+                }
+            }
+        }
     }
 }
 
