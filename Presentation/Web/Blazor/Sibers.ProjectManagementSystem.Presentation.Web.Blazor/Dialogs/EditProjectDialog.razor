@@ -154,15 +154,15 @@
         else
         {
             GetProjectByIdQuery query = new GetProjectByIdQuery(ProjectToEdit.Id, true);
-            var project = await Mediator.Send(query);
-            if (project == null)
+            var result = await Mediator.Send(query);
+            if (!result.IsSuccess)
             {
-                Snackbar.Add("No such project in database.", Severity.Info);
+                Snackbar.Add($"Не удалось загрузить проект. Причина: {result.Errors.AsOneString()}", Severity.Error);
                 Cancel();
             }
             else
             {
-                ProjectToEdit = project;
+                ProjectToEdit = result.Value;
             }
         }  
     }
@@ -367,12 +367,22 @@
 
     private async Task LoadEmployees(IEnumerable<int> ids)
     {
-        GetRangeOfEmployeesQuery query = new(ids, false);
-        var result = await Mediator.Send(query);
-        if (result == null)
-            _existingEmployees = new List<EmployeeDto>();
-        else
-            _existingEmployees = result.ToList();
+        try
+        {
+            GetRangeOfEmployeesQuery query = new(ids, false);
+            Result<IEnumerable<EmployeeDto>> result = await Mediator.Send(query);
+            if (!result.IsSuccess)
+            {
+                _existingEmployees = new List<EmployeeDto>();
+                Snackbar.Add($"Не удалось получить данные сотрудников. Причина: {result.Errors.AsOneString()}", Severity.Error);
+            }    
+            else
+                _existingEmployees = result.Value.ToList();
+        }
+        catch (Exception e)
+        {
+            Snackbar.Add($"Что-то пошло не так. Причина: {e.ReadErrors()}", Severity.Error);
+        }  
     }
 
     private void SetManager()

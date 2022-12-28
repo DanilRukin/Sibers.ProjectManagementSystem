@@ -2,9 +2,11 @@
 @using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Dtos
 @using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Employees.Queries
 @using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Extensions
+@using Sibers.ProjectManagementSystem.SharedKernel
 
 
 @inject IMediator Mediator
+@inject ISnackbar Snackbar
 
 <MudDialog>
     <DialogContent>
@@ -118,25 +120,41 @@
 
     private async Task LoadEmployees()
     {
-        IEnumerable<EmployeeDto>? employees;
+        IEnumerable<EmployeeDto>? employees = new List<EmployeeDto>();
         if (IncludeOnly == null || IncludeOnly.Count == 0)
         {
             GetAllEmployeesQuery query = new GetAllEmployeesQuery(false);
-            employees = await Mediator.Send(query);
-            if (employees != null)
+            Result<IEnumerable<EmployeeDto>> result = await Mediator.Send(query);
+            if (result.IsSuccess)
             {
-                ICollection<EmployeeDto> toClear = employees.ToList();
-                foreach (var item in ExcludedEmployeesList)
+                employees = result.Value;
+                if (employees != null)
                 {
-                    toClear.RemoveWithCriterion(e => e.Id == item.Id);
+                    ICollection<EmployeeDto> toClear = employees.ToList();
+                    foreach (var item in ExcludedEmployeesList)
+                    {
+                        toClear.RemoveWithCriterion(e => e.Id == item.Id);
+                    }
+                    employees = toClear;
                 }
-                employees = toClear;
+            } 
+            else
+            {
+                Snackbar.Add($"Не удалось загрузить сотрудников. Причина: {result.Errors.AsOneString()}");
             }
         }
         else
         {
             GetRangeOfEmployeesQuery query = new GetRangeOfEmployeesQuery(IncludeOnly, false);
-            employees = await Mediator.Send(query);
+            Result<IEnumerable<EmployeeDto>> result = await Mediator.Send(query);
+            if (!result.IsSuccess)
+            {
+                Snackbar.Add($"Не удалось загрузить сотрудников. Причина: {result.Errors.AsOneString()}");
+            }
+            else
+            {
+                employees = result.Value;
+            }
         }
         if (employees == null)
             EmployeesList = new List<EmployeeDto>();

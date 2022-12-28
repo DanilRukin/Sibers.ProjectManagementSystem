@@ -1,10 +1,12 @@
 ﻿using MediatR;
 using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Dtos;
+using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Extensions;
+using Sibers.ProjectManagementSystem.SharedKernel;
 using System.Net.Http.Json;
 
 namespace Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Employees.Queries
 {
-    public class GetRangeOfEmployeesQueryHandler : IRequestHandler<GetRangeOfEmployeesQuery, IEnumerable<EmployeeDto>>
+    public class GetRangeOfEmployeesQueryHandler : IRequestHandler<GetRangeOfEmployeesQuery, Result<IEnumerable<EmployeeDto>>>
     {
         private HttpClient _client;
         public GetRangeOfEmployeesQueryHandler(IHttpClientFactory factory)
@@ -13,7 +15,7 @@ namespace Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.
                 throw new ArgumentNullException(nameof(factory));
             _client = factory.CreateClient();
         }
-        public async Task<IEnumerable<EmployeeDto>> Handle(GetRangeOfEmployeesQuery request, CancellationToken cancellationToken)
+        public async Task<Result<IEnumerable<EmployeeDto>>> Handle(GetRangeOfEmployeesQuery request, CancellationToken cancellationToken)
         {
             try
             {
@@ -29,12 +31,12 @@ namespace Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.
                     .Content
                     .ReadFromJsonAsync<IEnumerable<EmployeeDto>>(cancellationToken: cancellationToken);
                 if (result == null)
-                    return new List<EmployeeDto>();
-                return result;
+                    return Result<IEnumerable<EmployeeDto>>.Error("Не был получен ответ с сервера.");
+                return Result<IEnumerable<EmployeeDto>>.Success(result);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw;
+                return Result<IEnumerable<EmployeeDto>>.Error(e.ReadErrors());
             }
         }
     }

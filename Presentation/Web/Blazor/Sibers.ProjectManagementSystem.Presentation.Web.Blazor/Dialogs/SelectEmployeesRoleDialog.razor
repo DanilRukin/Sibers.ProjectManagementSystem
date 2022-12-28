@@ -85,24 +85,24 @@
         else if (UpdateInformation)
         {
             GetProjectByIdQuery projectQuery = new(Project.Id, true);
-            ProjectDto project = await Mediator.Send(projectQuery);
-            if (project == null)
+            Result<ProjectDto> projectResult = await Mediator.Send(projectQuery);
+            if (!projectResult.IsSuccess)
             {
-                return Result.NotFound("Не удалось обновить данные проекта.");
+                return Result.NotFound(projectResult.Errors.ToArray());
             }
             else
             {
-                Project = project;
+                Project = projectResult.Value;
             }
             GetEmployeeByIdQuery employeeQuery = new(Employee.Id, true);
-            EmployeeDto employee = await Mediator.Send(employeeQuery);
-            if (employee == null)
+            Result<EmployeeDto> employeeResult = await Mediator.Send(employeeQuery);
+            if (!employeeResult.IsSuccess)
             {
-                return Result.NotFound("Не удалось обновить данные сотрудника.");
+                return Result.Error(employeeResult.Errors.ToArray());
             }
             else
             {
-                Employee = employee;
+                Employee = employeeResult.Value;
             }
         }
         return Result.Success();

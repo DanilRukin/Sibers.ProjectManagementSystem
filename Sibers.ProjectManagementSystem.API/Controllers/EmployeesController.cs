@@ -43,7 +43,7 @@ namespace Sibers.ProjectManagementSystem.API.Controllers
             GetEmployeeByIdQuery request = new(id, includeAdditionalData);
             var response = await _mediator.Send(request);
             if (response.IsSuccess)
-                return Ok(response.GetValue());
+                return Ok(response.Value);
             else
                 return ResultErrorsHandler.Handle(response);
         }
@@ -60,7 +60,7 @@ namespace Sibers.ProjectManagementSystem.API.Controllers
             GetRangeOfEmployeesQuery query = new GetRangeOfEmployeesQuery(ids, includeAdditionalData);
             var response = await _mediator.Send(query);
             if (response.IsSuccess)
-                return Ok(response.GetValue());
+                return Ok(response.Value);
             else
                 return ResultErrorsHandler.Handle(response);
         }

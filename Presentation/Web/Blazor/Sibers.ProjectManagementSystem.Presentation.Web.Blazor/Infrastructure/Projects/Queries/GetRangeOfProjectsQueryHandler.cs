@@ -1,10 +1,13 @@
 ﻿using MediatR;
 using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Dtos;
+using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Extensions;
+using Sibers.ProjectManagementSystem.SharedKernel;
+using System.Collections.Generic;
 using System.Net.Http.Json;
 
 namespace Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Projects.Queries
 {
-    public class GetRangeOfProjectsQueryHandler : IRequestHandler<GetRangeOfProjectsQuery, IEnumerable<ProjectDto>>
+    public class GetRangeOfProjectsQueryHandler : IRequestHandler<GetRangeOfProjectsQuery, Result<IEnumerable<ProjectDto>>>
     {
         private HttpClient _client;
         public GetRangeOfProjectsQueryHandler(IHttpClientFactory factory)
@@ -13,7 +16,7 @@ namespace Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.
                 throw new ArgumentNullException(nameof(factory));
             _client = factory.CreateClient();
         }
-        public async Task<IEnumerable<ProjectDto>> Handle(GetRangeOfProjectsQuery request, CancellationToken cancellationToken)
+        public async Task<Result<IEnumerable<ProjectDto>>> Handle(GetRangeOfProjectsQuery request, CancellationToken cancellationToken)
         {
             try
             {
@@ -24,19 +27,21 @@ namespace Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.
                     RequestUri = new Uri(route, UriKind.Relative),
                     Content = JsonContent.Create(request.ProjectsIds),
                 });
+                if (response == null)
+                    return Result<IEnumerable<ProjectDto>>.Error("Не был получен ответ с сервера.");
                 var result = await response
                     .EnsureSuccessStatusCode()
                     .Content
                     .ReadFromJsonAsync<IEnumerable<ProjectDto>>()
                     .ConfigureAwait(false);
                 if (result == null)
-                    return new List<ProjectDto>();
+                    return Result<IEnumerable<ProjectDto>>.NotFound("Данные с сервера не были получены.");
                 else
-                    return result;
+                    return Result<IEnumerable<ProjectDto>>.Success(result);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw;
+                return Result<IEnumerable<ProjectDto>>.Error(e.ReadErrors());
             }
         }
     }

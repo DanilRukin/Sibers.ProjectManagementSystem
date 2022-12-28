@@ -13,15 +13,18 @@
 @inject IDialogService DialogService
 @inject IMediator Mediator
 
+
+<PageTitle>Все проекты компании</PageTitle>
+<MudFab Style="position:fixed; bottom:10px; right:10px;" Color="Color.Success"
+        StartIcon="@Icons.Material.Filled.Add" @onclick="OnCreateProject" />
+<MudText Typo="Typo.h3" GutterBottom="true">Все проекты компании</MudText>
+
 @if (_projects == null)
 {
     <MudProgressCircular Color="Color.Default" Indeterminate="true" />
 }
 else
 {
-    <MudFab Style="position:fixed; bottom:10px; right:10px;" Color="Color.Success"
-        StartIcon="@Icons.Material.Filled.Add" @onclick="OnCreateProject" />
-    <MudText Typo="Typo.h3" GutterBottom="true">Проекты</MudText>
     @if (_projects.Count() == 0)
     {
         <MudText Typo="Typo.h5" GutterBottom="true">Здесь ничего нет</MudText>
@@ -104,7 +107,23 @@ else
 
     private async Task LoadProjects()
     {
-        _projects = (ICollection<ProjectDto>)await Mediator.Send(new GetAllProjectsQuery(false));
+        try
+        {
+            var response = await Mediator.Send(new GetAllProjectsQuery(false));
+            if (!response.IsSuccess)
+            {
+                Snackbar.Add("Не удалось загрузить проекты.", Severity.Info);
+                _projects = new List<ProjectDto>();
+            }
+            else
+            {
+                _projects = response.Value.ToList();
+            }
+        }
+        catch (Exception e)
+        {
+            Snackbar.Add($"Что-то пошло не так. Причина: {e.ReadErrors()}", Severity.Error);
+        }       
     }
 
     private async Task OnCreateProject()
@@ -136,12 +155,12 @@ else
             };
         DialogParameters parameters = new DialogParameters();
         GetProjectByIdQuery query = new GetProjectByIdQuery(projectId, false);
-        ProjectDto project = await Mediator.Send(query);
-        if (project == null)
+        Result<ProjectDto> projectResult = await Mediator.Send(query);
+        if (!projectResult.IsSuccess)
         {
-            Snackbar.Add("Ошибка при загрузке данных проекта", Severity.Error);
+            Snackbar.Add($"Ошибка при загрузке данных проекта. Причина: {projectResult.Errors.AsOneString()}", Severity.Error);
         }
-        parameters.Add("Project", project);
+        parameters.Add("Project", projectResult.Value);
         var dialog = DialogService.Show<WatchProjectDialog>("Информация о проекте", parameters, options);
     }
 
@@ -189,15 +208,15 @@ else
             if (ok)
             {
                 GetProjectByIdQuery query = new(projectId, false);
-                ProjectDto updatedProject = await Mediator.Send(query);
-                if (updatedProject == null)
+                Result<ProjectDto> updatedProjectResult = await Mediator.Send(query);
+                if (!updatedProjectResult.IsSuccess)
                 {
-                    Snackbar.Add("Не удалось получить обновленные данные проекта.");
+                    Snackbar.Add($"Не удалось получить обновленные данные проекта. Причина: {updatedProjectResult.Errors.AsOneString()}", Severity.Error);
                 }
                 else
                 {
                     _projects.RemoveWithCriterion(p => p.Id == projectId);
-                    _projects.Add(updatedProject);
+                    _projects.Add(updatedProjectResult.Value);
                 }
             }
         }

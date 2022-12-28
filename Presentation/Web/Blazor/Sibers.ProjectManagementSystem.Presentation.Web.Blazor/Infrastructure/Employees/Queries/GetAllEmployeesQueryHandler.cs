@@ -1,10 +1,12 @@
 ﻿using MediatR;
 using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Dtos;
+using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Extensions;
+using Sibers.ProjectManagementSystem.SharedKernel;
 using System.Net.Http.Json;
 
 namespace Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Employees.Queries
 {
-    public class GetAllEmployeesQueryHandler : IRequestHandler<GetAllEmployeesQuery, IEnumerable<EmployeeDto>>
+    public class GetAllEmployeesQueryHandler : IRequestHandler<GetAllEmployeesQuery, Result<IEnumerable<EmployeeDto>>>
     {
         private HttpClient _client;
         public GetAllEmployeesQueryHandler(IHttpClientFactory factory)
@@ -13,7 +15,7 @@ namespace Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.
                 throw new ArgumentNullException(nameof(factory));
             _client = factory.CreateClient();
         }
-        public async Task<IEnumerable<EmployeeDto>> Handle(GetAllEmployeesQuery request, CancellationToken cancellationToken)
+        public async Task<Result<IEnumerable<EmployeeDto>>> Handle(GetAllEmployeesQuery request, CancellationToken cancellationToken)
         {
             try
             {
@@ -21,11 +23,14 @@ namespace Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.
                 var result = await _client
                     .GetFromJsonAsync<IEnumerable<EmployeeDto>>(route, cancellationToken)
                     .ConfigureAwait(false);
-                return result;
+                if (result == null)
+                    return Result<IEnumerable<EmployeeDto>>.Error("Не удалось получить ответ с сервера.");
+                else
+                    return Result<IEnumerable<EmployeeDto>>.Success(result);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw;
+                return Result<IEnumerable<EmployeeDto>>.Error($"Что-то пошло не так. Причина: {e.ReadErrors()}");
             }
         }
     }

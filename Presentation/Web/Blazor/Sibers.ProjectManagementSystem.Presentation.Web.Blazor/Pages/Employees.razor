@@ -6,6 +6,7 @@
 @using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Employees.Commands
 @using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Employees.Queries
 @using Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Extensions
+@using Sibers.ProjectManagementSystem.SharedKernel
 @using Sibers.ProjectManagementSystem.SharedKernel.Results
 
 
@@ -23,7 +24,7 @@
 {
     <MudProgressCircular Color="Color.Default" Indeterminate="true" />
 }
-else
+else if (_employeesList.Count > 0)
 {
     <MudTable Style="height:stretch;" Items="_employeesList" FixedHeader="true" FixedFooter="true" Hover="true" SortLabel="Sort by">
         <HeaderContent>
@@ -87,12 +88,24 @@ else
 
     private async Task LoadEmployees()
     {
-        GetAllEmployeesQuery query = new GetAllEmployeesQuery(false);
-        var result = await Mediator.Send(query);
-        if (result == null)
-            _employeesList = new List<EmployeeDto>();
-        else
-            _employeesList = result.ToList();
+        try
+        {
+            GetAllEmployeesQuery query = new GetAllEmployeesQuery(false);
+            Result<IEnumerable<EmployeeDto>> result = await Mediator.Send(query);
+            if (result == null)
+                _employeesList = new List<EmployeeDto>();
+            else if (result.IsSuccess)
+                _employeesList = result.Value.ToList();
+            else
+            {
+                _employeesList = new List<EmployeeDto>();
+                Snackbar.Add(result.Errors.AsOneString(), Severity.Error);
+            }         
+        }
+        catch (Exception e)
+        {
+            Snackbar.Add($"Что-то пошло не так. Причина: {e.ReadErrors()}", Severity.Error);
+        }  
     }
 
     private async Task OnEmployeeEdit(int employeeId)
@@ -118,15 +131,16 @@ else
         if (result != null && !result.Cancelled && (result.Data is bool ok))
         {
             GetEmployeeByIdQuery query = new(employeeId, false);
-            EmployeeDto updatedEmployee = await Mediator.Send(query);
-            if (updatedEmployee == null)
+            Result<EmployeeDto> updatedResult = await Mediator.Send(query);
+            if (updatedResult.IsSuccess)
             {
-                Snackbar.Add("Не удалось получить обновленные данные сотрудника.", Severity.Error);
+                _employeesList.RemoveWithCriterion(e => e.Id == employeeId);
+                _employeesList.Add(updatedResult.Value);
             }
             else
             {
-                _employeesList.RemoveWithCriterion(e => e.Id == employeeId);
-                _employeesList.Add(updatedEmployee);
+                Snackbar.Add($"Не удалось получить обновленные данные сотрудника."
+                + $" Причина: {updatedResult.Errors.AsOneString()}", Severity.Error);
             }
         }
     }

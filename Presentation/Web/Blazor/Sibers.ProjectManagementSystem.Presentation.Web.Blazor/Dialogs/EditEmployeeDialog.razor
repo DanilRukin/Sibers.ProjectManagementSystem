@@ -122,26 +122,33 @@
 
     private async Task<Result> LoadEmployeeToEdit()
     {
-        GetEmployeeByIdQuery query = new(EmployeeToEdit.Id, true);
-        var response = await Mediator.Send(query);
-        if (response == null)
-            return Result.Error("Не удалось загрузить данные сотрудника.");
-        else
+        try
         {
-            EmployeeToEdit = response;
-            return Result.Success();
+            GetEmployeeByIdQuery query = new(EmployeeToEdit.Id, true);
+            Result<EmployeeDto> response = await Mediator.Send(query);
+            if (!response.IsSuccess)
+                return Result.Error("Не удалось загрузить данные сотрудника.");
+            else
+            {
+                EmployeeToEdit = response.Value;
+                return Result.Success();
+            }
         }
+        catch (Exception e)
+        {
+            return Result.Error(e.ReadErrors());
+        }        
     }
 
     private async Task<Result> LoadProjects(IEnumerable<int> projectsIds)
     {
         GetRangeOfProjectsQuery query = new(projectsIds, true);
-        var response = await Mediator.Send(query);
-        if (response == null)
-            return Result.Error("Не удалось загрузить проекты сотрудника.");
+        Result<IEnumerable<ProjectDto>> response = await Mediator.Send(query);
+        if (!response.IsSuccess)
+            return Result.Error($"Не удалось загрузить проекты сотрудника. Причина: {response.Errors.AsOneString()}");
         else
         {
-            _employeesProjects = response.ToList();
+            _employeesProjects = response.Value.ToList();
             return Result.Success();
         }
     }
