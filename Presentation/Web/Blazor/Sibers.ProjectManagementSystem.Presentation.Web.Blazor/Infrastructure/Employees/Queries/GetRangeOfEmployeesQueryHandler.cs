@@ -19,12 +19,11 @@ namespace Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.
         {
             try
             {
-                string route = ApiHelper.Get.Range(request.IncludeAdditionalData);
+                string route = ApiHelper.Get.Range(request.EmployeesIds ,request.IncludeAdditionalData);
                 var response = await _client.SendAsync(new HttpRequestMessage
                 {
                     Method = HttpMethod.Get,
                     RequestUri = new Uri(route, UriKind.Relative),
-                    Content = JsonContent.Create(request.EmployeesIds),
                 });
                 var result = await response
                     .EnsureSuccessStatusCode()

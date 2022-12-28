@@ -20,12 +20,11 @@ namespace Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.
         {
             try
             {
-                string route = ApiHelper.Get.Range(request.IncludeAdditionalData);
+                string route = ApiHelper.Get.Range(request.ProjectsIds, request.IncludeAdditionalData);
                 var response = await _client.SendAsync(new HttpRequestMessage
                 {
                     Method = HttpMethod.Get,
                     RequestUri = new Uri(route, UriKind.Relative),
-                    Content = JsonContent.Create(request.ProjectsIds),
                 });
                 if (response == null)
                     return Result<IEnumerable<ProjectDto>>.Error("Не был получен ответ с сервера.");

@@ -54,7 +54,7 @@ namespace Sibers.ProjectManagementSystem.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<ProjectDto>>> GetRange(
-            [FromBody]IEnumerable<int> ids,
+            [FromQuery]IEnumerable<int> ids,
             [FromRoute]bool includeAdditionalData = false)
         {
             GetRangeOfProjectsQuery query = new GetRangeOfProjectsQuery(ids, includeAdditionalData);

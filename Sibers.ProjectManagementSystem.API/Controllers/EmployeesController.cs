@@ -54,10 +54,25 @@ namespace Sibers.ProjectManagementSystem.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<EmployeeDto>>> GetRangeOfEmployees(
-            [FromBody] IEnumerable<int> ids,
+            [FromQuery] IEnumerable<int> ids,
             [FromRoute]bool includeAdditionalData = false)
         {
             GetRangeOfEmployeesQuery query = new GetRangeOfEmployeesQuery(ids, includeAdditionalData);
+            var response = await _mediator.Send(query);
+            if (response.IsSuccess)
+                return Ok(response.Value);
+            else
+                return ResultErrorsHandler.Handle(response);
+        }
+
+        [HttpGet("all/{includeAdditionalData:bool}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IEnumerable<EmployeeDto>>> GetALl([FromRoute] bool includeAdditionalData = false)
+        {
+            GetAllEmployeesQuery query = new(includeAdditionalData);
             var response = await _mediator.Send(query);
             if (response.IsSuccess)
                 return Ok(response.Value);

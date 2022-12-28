@@ -24,7 +24,11 @@
 {
     <MudProgressCircular Color="Color.Default" Indeterminate="true" />
 }
-else if (_employeesList.Count > 0)
+else if (_employeesList.Count == 0)
+{
+    <MudText Typo="Typo.h5" GutterBottom="true">Здесь ничего нет</MudText>
+}
+else
 {
     <MudTable Style="height:stretch;" Items="_employeesList" FixedHeader="true" FixedFooter="true" Hover="true" SortLabel="Sort by">
         <HeaderContent>

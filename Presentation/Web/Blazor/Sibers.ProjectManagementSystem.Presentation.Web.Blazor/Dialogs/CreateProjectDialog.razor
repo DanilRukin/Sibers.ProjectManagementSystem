@@ -53,17 +53,16 @@
                             </MudButton>
                         </MudItem>
                     </MudGrid>
-
+                    <MudText Typo="Typo.h6" GutterBottom="true">Сотрудники на проекте</MudText>
+                    <MudButton Variant="Variant.Filled" Color="Color.Success" Class="mb-3" @onclick="OnEmplyeesSelecting">
+                        Добавить сотрудника
+                    </MudButton>
                     @if (_employeesOnProject == null)
                     {
                         <MudProgressCircular Indeterminate="true"></MudProgressCircular>
                     }
                     else if (_employeesOnProject.Count > 0)
                     {
-                        <MudText Typo="Typo.h6" GutterBottom="true">Сотрудники на проекте</MudText>
-                        <MudButton Variant="Variant.Filled" Color="Color.Success" Class="mb-3" @onclick="OnEmplyeesSelecting">
-                            Добавить сотрудника
-                        </MudButton>
                         <MudTable Items="_employeesOnProject" FixedHeader="true" FixedFooter="true" Hover="true" SortLabel="Sort by">
                             <HeaderContent>
                                 <MudTh>

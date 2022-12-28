@@ -1,4 +1,6 @@
-﻿namespace Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Employees
+﻿using System.Text;
+
+namespace Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.Employees
 {
     public static class ApiHelper
     {
@@ -9,8 +11,19 @@
                 => $"{Api}/{employeeId}/{includeData}";
             public static string All(bool includeAdditionalData = false)
                 => $"{Api}/all/{includeAdditionalData}";
-            public static string Range(bool includeAdditionalData = false)
-                => $"{Api}/range/{includeAdditionalData}";
+            public static string Range(IEnumerable<int> ids, bool includeAdditionalData = false)
+                => $"{Api}/range/{includeAdditionalData}?{ToQuery(ids, nameof(ids))}";
+
+            private static string ToQuery(IEnumerable<int> ids, string idsName)
+            {
+                StringBuilder builder = new StringBuilder(ids.Count() * idsName.Length);
+                foreach (var id in ids)
+                {
+                    builder.Append($"{idsName}={id}&");
+                }
+                string result = builder.ToString();
+                return result.Remove(result.Length - 1, 1);
+            }
         }
 
         public static class Post
