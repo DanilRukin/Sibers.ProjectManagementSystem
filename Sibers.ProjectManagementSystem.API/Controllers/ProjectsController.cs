@@ -125,12 +125,12 @@ namespace Sibers.ProjectManagementSystem.API.Controllers
                 return ResultErrorsHandler.Handle(response);
         }
 
-        [HttpPut("demotemanager/{projectId}/{reason}")]
+        [HttpPut("demotemanager/{projectId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> DemoteManagerToEmployee(int projectId, string reason)
+        public async Task<ActionResult> DemoteManagerToEmployee([FromRoute]int projectId, [FromQuery]string? reason = "")
         {
             DemoteManagerToTheEmployeeCommand request = new(projectId, reason);
             var response = await _mediator.Send(request);

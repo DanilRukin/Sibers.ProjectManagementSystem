@@ -100,19 +100,21 @@
                     EmployeeToWatch = employeeResult.Value;
                 }
             }
-            else
+            GetRangeOfProjectsQuery projectsQuery = new GetRangeOfProjectsQuery(EmployeeToWatch.ProjectsIds, true);
+            var projectsResult = await Mediator.Send(projectsQuery);
+            if (!projectsResult.IsSuccess)
             {
-                GetRangeOfProjectsQuery projectsQuery = new GetRangeOfProjectsQuery(EmployeeToWatch.ProjectsIds, true);
-                var projectsResult = await Mediator.Send(projectsQuery);
-                if (!projectsResult.IsSuccess)
-                {
-                    Snackbar.Add($"Не удалось загрузить проекты сотрудника. Причина: {projectsResult.Errors.AsOneString()}", Severity.Error);
-                    _projects = new List<ProjectDto>();
-                }  
-                else
-                    _projects = projectsResult.Value.ToList();
+                Snackbar.Add($"Не удалось загрузить проекты сотрудника. Причина: {projectsResult.Errors.AsOneString()}", Severity.Error);
+                _projects = new List<ProjectDto>();
             }
+            else
+                _projects = projectsResult.Value.ToList();
         }
+        else
+        {
+            Snackbar.Add("Не удалось получить сотрудника.", Severity.Warning);
+            EmployeeToWatch = new EmployeeDto();
+        }   
     }
 
     private void Cancel() => MudDialog.Cancel();

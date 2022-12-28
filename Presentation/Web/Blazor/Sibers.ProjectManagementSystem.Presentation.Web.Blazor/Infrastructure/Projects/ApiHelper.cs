@@ -35,14 +35,14 @@ namespace Sibers.ProjectManagementSystem.Presentation.Web.Blazor.Infrastructure.
                 => $"{_api}/removeemployee/{projectId}/{emplyeeId}";
             public static string FireManager(int projectId, string reason)
                 => $"{_api}/firemanager/{projectId}/{reason}";
-            public static string DemoteManager(int projectId, string reason)
-                => $"{_api}/demotemanager/{projectId}/{reason}";
+            public static string DemoteManager(int projectId, string reason = null)
+                => string.IsNullOrWhiteSpace(reason) ? $"{_api}/demotemanager/{projectId}" : $"{_api}/demotemanager/{projectId}?reason={reason}";
             public static string PromoteEmployeeToManager(int projectId, int employeeId)
                 => $"{_api}/promoteemployee/{projectId}/{employeeId}";
             public static string TransferEmployee(int currentProjectId, int futureProjectId, int employeeId)
                 => $"{_api}/transferemployee/{currentProjectId}/{futureProjectId}/{employeeId}";
             public static string AddRangeOfEmployees(int projectId)
-                => $"{_api}/addrangeofemployees{projectId}";
+                => $"{_api}/addrangeofemployees/{projectId}";
             public static string Update() => $"{_api}/update";
             public static string RemoveRangeOfEmployees(int projectId) =>
                 $"{_api}/removerangeofemployees/{projectId}";

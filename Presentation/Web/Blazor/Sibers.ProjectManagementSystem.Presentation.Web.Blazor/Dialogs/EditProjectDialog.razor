@@ -268,6 +268,7 @@
             Snackbar.Add($"Не удалось удалить сотрудинков с проекта. Причина: {removeEmployeesResult.Errors.AsOneString()}");
             MudDialog.Close(DialogResult.Ok(false));
         }
+        Snackbar.Add("Изменения успешно применены.", Severity.Success);
         MudDialog.Close(DialogResult.Ok(true));
     }
 
@@ -325,14 +326,17 @@
         Func<EmployeeDto, bool> criterion = new Func<EmployeeDto, bool>(e => e.Id == _manager.Id);
         if (_existingEmployees.Contains(criterion))
             _existingEmployees.RemoveWithCriterion(criterion);
-        if (_addedEmployees.Contains(criterion))
+        if (_addedEmployees.Contains(criterion))  // if manager was added only on a client
+        {
             _addedEmployees.RemoveWithCriterion(criterion);
-        AddEmployeeCommand addCommand = new(ProjectToEdit.Id, _manager.Id);
-        var addResult = await Mediator.Send(addCommand);
-        if (addResult == null)
-            return Result.Error("Result of add command was null!");
-        if (!addResult.IsSuccess)
-            return addResult;
+            AddEmployeeCommand addCommand = new(ProjectToEdit.Id, _manager.Id); // add him/her on a server
+            var addResult = await Mediator.Send(addCommand);
+            if (addResult == null)
+                return Result.Error("Result of add command was null!");
+            if (!addResult.IsSuccess)
+                return addResult;
+        }
+        // manager was added to the project or was worked on it before
         PromoteEmployeeToManagerCommand promoteCommand = new(ProjectToEdit.Id, _manager.Id);
         var promoteResult = await Mediator.Send(promoteCommand);
         if (promoteResult == null)
